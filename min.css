@@ -1,0 +1,1356 @@
+ #titlebox{
+    z-index: -1;
+    font-family: 'Karla', sans-serif;
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    
+    
+}
+
+#yellowrect{
+        border-width: 1em;
+        display: inline-block;
+        width: auto;
+        margin: 0 auto;
+        border-color: #ffd731;
+        border-width: 0.2em;
+        border-style: solid;
+        
+}
+
+
+
+
+#rainfirst{
+    margin-left: 50%;
+    animation-name: raincomp1;
+    animation-duration: 2s;
+    
+}
+
+#rainsecond{
+    opacity: 0;
+    animation-delay: 1s;
+    margin-left: 20%;
+    animation-name: raincomp1;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+}
+
+#rainthird{
+    
+    animation-name: raincomp1;
+    animation-duration: 2s;
+    
+}
+
+
+#rainfourth{
+    opacity: 0;
+    animation-delay: 1s;
+    margin-left: 25%;
+    margin-top: 20%;
+    
+    animation-name: raincomp1;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+}
+
+#rainfifth{
+    margin-left: 40%;
+    margin-top: 20%;
+    animation-name: raincomp1;
+    animation-duration: 2s;
+   
+}
+
+#rainsixth{
+    opacity: 0;
+    animation-delay: 1s;
+    margin-left: 80%;
+    animation-name: raincomp1;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+}
+
+
+
+
+@keyframes raincomp1{
+    0%{opacity: 0;}
+    100%{opacity: 0.8;}
+}
+ 
+
+    h1{
+        
+        font-size: 400%;
+        letter-spacing: 1em;
+        margin-left: 0.8em;
+        text-align: center;
+        
+       
+}
+
+    h2{
+        font-size: 3em;
+        letter-spacing: 0.3em;
+        margin-left: 0.3em;
+        text-align: center;
+}
+    
+    body{
+        margin: 0;
+        padding: 0;
+       }
+        
+    .container {
+        position: relative;
+        width: 100%;
+       }  
+          
+    .cover{
+        
+        margin: 0;
+        padding: 40%;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-image: url(assets/cover.gif);
+        background-size:cover;
+        }
+          
+    .top{
+        position:fixed;
+        width: 20%;
+        margin: 0 auto;
+          }      
+          
+    .title{
+        
+        
+        pointer-events: none;
+        width: 100%;
+        
+        position: fixed;
+        
+        height: auto;
+        margin-top:  -60%;
+        
+        }
+          
+.defaultdiv{
+    height:50vw;
+    width:100%;
+    z-index: 999;
+    
+}
+
+
+
+
+
+.yellowbox{
+    width: 12%;
+    height: 37%;
+    margin-top: 0;
+    margin-left: 10%;
+    background-color: #ffd731;
+    position: relative;
+    
+    
+}
+
+.sectionbox{
+    width: 13%;
+    height: 37%;
+    margin-top: 0;
+    margin-left: 21%;
+    float: left;
+    margin-top: -14.88%;
+    position: relative;
+    
+
+}
+  
+
+
+
+.sectiontitle{
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #000;
+    font-size: 4vw;
+    margin-top: 0;
+    line-height: 100%;
+    z-index: 2;
+    float: right;
+    letter-spacing: 0.2em;
+    
+}
+
+.capl{
+    line-height: 120%;
+    margin-top: 0;
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #000;
+    text-align: center;
+    font-size: 16vw;
+    display: block
+    
+}
+
+
+.rain{
+    position:absolute;
+}
+
+
+.paragraphdx{
+    
+    font-size: 1.4vw;
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #000;
+    line-height: 1.9vw; 
+    
+    float: right;
+    width: 28%;
+    height: 20%;
+    
+    
+    position: absolute;
+    margin-left: 62%;
+}
+
+.paragraphsx{
+    
+    font-size: 1.4vw;
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #000;
+    line-height: 1.9vw; 
+    float: left;
+    width: 28%;
+    height: 20%;
+   
+    position: absolute;
+    margin-left: 28%;
+}
+
+
+
+
+
+
+
+/*section2*/
+
+
+
+
+
+.viz{
+    background-color: black;
+    width: 100%;
+    height: 45vw;
+}
+
+.barchart{
+    background: linear-gradient(to bottom, rgba(255,215,49,1), rgba(255,215,49,0));
+}
+
+
+.facebookbar{
+    
+    animation-name: facebook;
+    animation-duration: 4s;
+    animation-fill-mode: forwards;
+    animation-delay: 1s;
+    
+    
+    width: 8vw;
+    background: linear-gradient(to bottom, rgba(255,215,49,1), rgba(255,215,49,0));
+    position:absolute;
+    margin-top: 22vw;
+    margin-left: 45vw;
+}
+
+.toolbar{
+    
+    
+    animation-name: tool;
+    animation-duration: 4s;
+    animation-fill-mode: forwards;
+    animation-delay: 1s;
+    
+    
+    width: 8vw;
+    background: linear-gradient(to bottom, rgba(255,215,49,1), rgba(255,215,49,0));
+    position:absolute;
+    margin-top: 15vw;
+    margin-left:68vw;
+}
+
+.newspapersbar{
+    
+    animation-name: newspaper;
+    animation-duration: 4s;
+    animation-fill-mode: forwards;
+    animation-delay: 1s;
+    
+    width: 8vw;
+    background: linear-gradient(to bottom, rgba(255,215,49,1), 30%, rgba(255,215,49,0));
+    position:absolute;
+    margin-top: 25.5vw;
+    margin-left: 23vw;
+}
+
+@keyframes newspaper {
+    0%{height: 0vw; margin-top: 35vw; opacity: 0;}
+    100%{height:5vw;margin-top: 29.5vw; opacity: 1;}
+}
+
+@keyframes tool {
+    0%{height: 0vw; margin-top: 35vw; opacity: 0;}
+    100%{height:20vw; margin-top: 15vw; opacity: 1;}
+}
+
+@keyframes facebook {
+    0%{height: 0vw; margin-top: 35vw; opacity: 0;}
+    100%{height:12.5vw; margin-top: 22vw; opacity: 1;}
+}
+
+
+.whiteline{
+    background-color: #FFFFFF;
+    height: 0.1vw;
+    width: 65vw;
+    position: absolute;
+    margin-top: 35.5vw;
+    margin-left:16.8vw;
+}
+
+.count{ 
+    opacity: 1;
+    font-size: 2vw;
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #fff;
+    
+    animation-name: countfadein;
+    
+    animation-duration: 4s;
+}
+
+@keyframes countfadein{
+    0%{opacity: 0;}
+    100%{opacity: 1;}
+}
+
+
+.newspapercounterPosition{
+    position: absolute;
+    margin-left: 25.7vw;
+    margin-top: 36.7vw;
+    
+}
+
+.facebookcounterPosition{
+    position: absolute;
+    margin-left: 47.8vw;
+    margin-top: 36.7vw;
+    
+}
+
+
+
+
+.toolcounterPosition{
+    position: absolute;
+    margin-left: 70.6vw;
+    margin-top: 36.7vw;
+    
+}
+
+.countstayanimate{ 
+    
+    
+    opacity: 0;
+    animation-name: countstay;
+    animation-delay: 3.9s;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes countstay{
+    0%{opacity: 0;}
+    90%{opacity: 0;}
+    100%{opacity: 1;}
+}
+
+
+
+
+
+.fontst{ 
+    
+  opacity: 0;
+    
+    font-size: 2vw;
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #fff;
+    
+}
+
+#intest{
+    position: absolute;
+    font-size: 1.8vw;
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #fff;
+    margin-top: 4.2vw; 
+}
+
+.intestp{
+    position: absolute;
+}
+
+
+.facebookintestp{
+    font-size: 1.5vw;
+    text-align: center;
+    margin-left: 45.1vw;
+    font-weight: bolder;
+    letter-spacing: 0.1vw
+}
+
+.facebookintestbr{
+    line-height: 2vw;
+    font-size: 1.00vw;
+    text-align: center;
+    margin-left: 46.65vw;
+    font-weight: lighter;
+    margin-top: 35vw;
+}
+
+
+
+
+
+.journalintestp{
+    margin-top: -0.20vw;
+    font-size: 1.5vw;
+    text-align: center;
+    margin-left: 22.0vw;
+    font-weight: bolder;
+    letter-spacing: 0.1vw
+}
+
+.journalintestbr{
+    line-height: 2vw;
+    font-size: 1.00vw;
+    text-align: center;
+    margin-left: 24.4vw;
+    font-weight: lighter;
+    margin-top: 35vw;
+}
+
+
+
+
+.toolintestp{
+    margin-top: -0.20vw;
+    font-size: 1.5vw;
+    text-align: center;
+    margin-left: 68.38vw;
+    font-weight: bolder;
+    letter-spacing: 0.1vw
+}
+
+.toolintestbr{
+    
+    line-height: 2vw;
+    font-size: 1.00vw;
+    text-align: center;
+    margin-left: 69.7vw;
+    font-weight: lighter;
+    margin-top: 35vw;
+}
+
+
+/*SEZIONE 3:)*/
+
+.defaultdivmin{
+    
+    height:45vw;
+    width:100%;
+    z-index: 999;
+    
+}
+
+
+.label{
+       background-color: black;
+        margin: 0;
+        padding: 40%;
+        padding-top: 10%;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-image: url(assets/rete.jpg);
+        background-size:cover;
+    
+}
+
+
+.toptitle{
+    
+    margin-top: -25vw;
+       
+}
+
+.yellowbox2{
+    
+    width: 12%;
+    margin-left: 10%;
+    background-color: #ffd731;
+    position: relative;
+
+}
+
+.sectiontitle2{
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #fff;
+    font-size: 4vw;
+    margin-top: -12.5vw;
+    margin-right: -11.2vw;
+    line-height: 100%;
+    z-index: 2;
+    float: right;
+    letter-spacing: 0.2em;
+    
+}
+
+
+
+
+.yellowstrip{
+    z-index: 2;
+    height:55.1vw;
+    width: 28vw;
+    background-color: #ffd731;
+    position: absolute;
+    margin-top: -10.1vw;
+    margin-left: 34vw;
+}
+
+
+#pin{
+    position: relative;
+    float: right;
+    bottom: -15vw;
+}
+
+.dotnumber{
+    z-index: 3;
+    margin-top: -10vw;
+    margin-left: 18vw;
+    position: absolute;
+    font-family: 'Karla', sans-serif;
+    font-size: 30vw;
+    font-weight: 700;
+}
+
+.dot{
+    z-index: 3;
+    margin-top: -4.1vw;
+    margin-left: 36.5vw;
+    position: absolute;
+    font-family: 'Karla', sans-serif;
+    font-size: 23vw;
+    font-weight: 700;
+}
+
+.yellowstriptext{
+    margin: 0 auto;
+    width: 20vw;
+    margin-top:7vw;
+}
+
+.ordinarytext{
+    
+    font-size: 1.4vw;
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #000;
+    line-height: 1.9vw;
+    
+    transition: color 0.15s;
+     
+}
+
+
+
+
+.ordinarylink{
+    
+    font-size: 1.4vw;
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #000;
+    line-height: 1.9vw;
+    
+    transition: color 0.15s;
+     
+}
+
+
+.ordinarylink:hover{
+    
+    font-size: 1.4vw;
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #fff;
+    line-height: 1.9vw;
+     
+}
+
+
+
+
+.importanttextblack{
+     font-family: 'Karla', sans-serif;
+     font-weight: 800;
+     font-size: 3.5vw;
+     color: #000;
+     position: absolute;
+     margin-left: 65vw;
+     z-index: 3;
+     margin-top: -3.7vw;   
+}
+
+
+
+
+/*SEZIONE 4*/
+
+
+
+.label2{
+   
+       
+        background-color: black;
+        margin: 0;
+        padding: 40%;
+        padding-top: 10%;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-image: url(assets/barre.jpg);
+        background-size:cover;
+
+}
+
+
+.dotnumber2{
+    z-index: 3;
+    margin-top: 0vw;
+    margin-left: 26.6vw;
+    position: relative;
+    font-family: 'Karla', sans-serif;
+    font-size: 30vw;
+    font-weight: 700;
+    color: #fff;
+}
+
+.dot2{
+    z-index: 3;
+    margin-top: - 160.6vw;
+    color: #fff;
+    float: right;
+    position: absolute;
+    font-family: 'Karla', sans-serif;
+    font-size: 23vw;
+    font-weight: 700;
+}
+
+
+.upperbox{
+    position: absolute;
+    height:auto;
+    width: auto;
+    margin-top: -35vw;
+    margin-left: 50vw;
+}
+
+
+.importanttext{
+     font-family: 'Karla', sans-serif;
+     font-weight: 800;
+     font-size: 3.5vw;
+     color: #fff;
+     position: absolute;
+    margin-top: -58vw;
+    text-align: right;
+    line-height: 4.27vw;
+}
+
+
+
+/*SECTION5*/
+
+
+
+.dotnumber3{
+    z-index: 3;
+    margin-top: -1vw;
+    margin-left: 10vw;
+    position: absolute;
+    font-family: 'Karla', sans-serif;
+    font-size: 30vw;
+    font-weight: 700;
+}
+
+
+
+.importanttextblack3{
+     font-family: 'Karla', sans-serif;
+     font-weight: 800;
+     font-size: 3.5vw;
+     color: #000;
+     position: absolute;
+     margin-left: 33vw;
+     z-index: 3;
+    margin-top: 6.5vw;
+     
+    
+    
+}
+
+
+
+
+
+/*SEZIONE 6*/
+
+
+
+.toptitle3{
+    position: absolute;
+    margin-top: -30vw;
+    margin-left: 10vw;
+    
+       
+}
+
+.yellowbox3{
+    
+    
+    width: 185%;
+    
+    background-color: #ffd731;
+    position: relative;
+
+}
+
+.sectiontitle3{
+    position: relative;
+ 
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #fff;
+    font-size: 4vw;
+    margin-top: -22.19vw;
+    margin-left: 23vw;
+    line-height: 100%;
+    z-index: 2;
+    float: left;
+    letter-spacing: 0.2em;
+    
+}
+
+
+
+
+
+/*SEZIONE 7*/
+
+
+.echotitle{
+    position: absolute;
+    text-align: center;
+    font-family: 'Karla', sans-serif;
+    font-weight: 800;
+    font-size: 3.5vw;
+    color: #000;
+    
+    
+}
+
+.echotitlebox{
+    width: 40%;
+    margin: 0 auto;
+}
+
+
+
+.echotext{
+    font-size: 1.4vw;
+    font-family: 'Karla', sans-serif;
+    font-weight: 500;
+    color: #000;
+    line-height: 1.9vw; 
+    
+    
+    width: 30%;
+    height: 20%;
+    
+    
+    position: absolute;
+    margin-left: 36.8vw;
+    margin-top: 35vw;
+}
+
+
+
+
+.defaultdivplus{
+    
+    height:80vw;
+    width:100%;
+    z-index: 999;
+    
+    
+    
+}
+
+.sectionbox3{
+    width: 33%;
+    height: 37%;
+   
+    margin-left: 20%;
+    float: left;
+    margin-top: -14.88%;
+    position: relative;
+    
+
+}
+
+
+
+
+/*COOL WAVE XD*/
+
+
+
+
+
+
+
+ /* General Wave */
+.wave-1, .wave-2, .wave-3, .wave-4, .wave-5 {
+  border-radius: 50%;
+}
+
+/* Main Wave */ 
+#wave {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  left: 50%;
+  top: 50%;
+  margin-left: -150px;
+  margin-top: -150px
+}
+
+/* Design my wave */ 
+#wave>div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #cc9900;
+}
+
+ /* Animate wave */
+.wave-1 {
+  animation: animation_wave 2.5s linear infinite;
+}
+
+.wave-2 {
+  animation: animation_wave 3s linear infinite;
+}
+
+.wave-3 {
+  animation: animation_wave 3.5s linear infinite;
+}
+
+.wave-4 {
+  animation: animation_wave 4s linear infinite;
+}
+
+.wave-5 {
+  animation: animation_wave 4.5s linear infinite;
+}
+
+@keyframes animation_wave {
+  0% {
+    transform: scale(0);
+    border-width: 10px;
+  }
+  40% {
+    transform: scale(0.35);
+    opacity: 0.95;
+    border-width: 30px;
+  }
+  90% {
+    transform: scale(0.85);
+    opacity: 0.1;
+    border-width: 60px;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+    border-width: 80px;
+  }
+}
+
+
+.shadow-1, .shadow-2, .shadow-3, .shadow-4, .shadow-5 {
+  border-radius: 50%;
+}
+
+/* Main shadow */ 
+#shadow {
+  position: absolute;
+  width: 310px;
+  height: 310px;
+  left: 50%;
+  top: 50%;
+  margin-left: -155px;
+  margin-top: -155px
+}
+
+/* Design my shadow */ 
+#shadow>div {
+  z-index:-3;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #cc9900;
+}
+
+.shadow-1 {
+  animation: animation_wave 3s linear infinite;
+}
+
+.shadow-2 {
+  animation: animation_wave 3.5s linear infinite;
+}
+
+.shadow-3 {
+  animation: animation_wave 4s linear infinite;
+}
+
+.shadow-4 {
+  animation: animation_wave 4.5s linear infinite;
+}
+
+.shadow-5 {
+  animation: animation_wave 5s linear infinite;
+}
+
+@keyframes animation_wave {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+    border-width: 15px;
+  }
+  40% {
+    transform: scale(0.35);
+    opacity: 0.5;
+    border-width: 35px;
+  }
+  90% {
+    transform: scale(0.85);
+    opacity: 0.1;
+    border-width: 65px;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+    border-width: 75px;
+  }
+}
+
+/*SEZIONE 8*/
+
+.defaultdivlessthenmin{
+    
+    height:30vw;
+    width:100%;
+    z-index: 999;
+    
+}
+
+
+#foot{
+   
+        
+        
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-image: url(assets/footer.jpg);
+        background-size: 150vw, 10vw;
+        background-color: #000;
+        
+ 
+}
+
+
+
+#tredexperience{
+       
+        margin-left: 40vw;
+        display: inline-block;    
+    
+        background-color: rgba(0,0,0,0.0);
+        margin-top: 10vw;
+        padding-right: 3vw;
+        padding-left: 3vw;
+        height:7vw;
+        border-width: 0.3em;
+        
+        width: auto;
+        
+        border-color: #ffd731;
+        border-style: solid;
+        cursor: pointer;
+        
+        
+    
+}
+
+
+
+
+
+
+.ordinarytextw{
+    z-index: 0;
+    
+    cursor: pointer;
+    font-size: 2vw;
+    font-family: 'Karla', sans-serif;
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    margin-top: 2vw;
+}
+
+.dynamicbg{
+    
+    z-index: 0;
+    
+    position: absolute;
+    margin-left: 40vw;
+    margin-top: 10vw;
+    cursor: pointer;
+    height: 7.48vw;
+    width: 0vw;
+    background-color: #ffd731;
+    
+}
+
+.ordinarytexttransform{
+    opacity: 0;
+    z-index: 10;
+    
+    position: absolute;
+    margin-left: 43.23vw;
+   
+    
+    cursor: pointer;
+    font-size: 2vw;
+    font-family: 'Karla', sans-serif;
+    font-weight: 800;
+    color: #000;
+    text-align: center;
+    margin-top: -5.27vw;
+    
+     
+}
+
+.on{
+    animation-name: switchon;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+@keyframes switchon {
+    0%{opacity: 0;}   
+    100%{opacity: 1;}
+}
+
+.slide{
+    animation-name: slidein;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+@keyframes slidein {
+    0%{width: 0vw;}   
+    100%{width: 21.1vw;}
+}
+
+
+.off{
+    animation-name: switchoff;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+@keyframes switchoff {
+    0%{opacity: 1;}   
+    100%{opacity: 0;}
+}
+
+.slideout{
+    animation-name: slideout;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+@keyframes slideout {
+    0%{width: 21.1vw;}   
+    100%{width: 0vw;}
+}
+
+
+
+#pulsante{
+    position: absolute;
+    margin-left: 40vw;
+    margin-top: 10vw;
+    cursor: pointer;
+    height: 7.48vw;
+    width: 21.1vw;
+    z-index: 999;
+    background-color: rgba(0,0,0,0.0);
+}
+
+#copertinaresp {
+   display: none;
+    
+    }
+
+#copertina {
+   display: none;
+    
+    }
+
+
+/*Responsività*/
+
+@media screen and (min-width: 0px) and (max-width: 1337px){
+
+    
+    #titlebox {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 0px) and (max-width: 1337px){
+
+    #copertinaresp {
+   display: block;
+    
+    }
+
+    
+   
+}
+    
+@media screen and (min-width: 1337px) and (max-width:1800px){
+
+    
+    #copertina {
+   display: block;
+    
+    }
+
+   
+}    
+    
+    .labelresp{
+       
+        margin: 0;
+        padding: 40%;
+        padding-top: 10%;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-color: #000;
+        background-size:cover;
+       
+    
+}
+    
+    
+    #titleboxresp{
+    z-index: -1;
+    font-family: 'Karla', sans-serif;
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    font-size: 7vw;
+    
+    
+}
+
+    #yellowrectresp{
+        
+        display: inline-block;
+        width: auto;
+        margin: 0 auto;
+        border-color: #ffd731;
+        border-width: 0.8vw;
+        border-style: solid;
+        margin-left: -4.7vw; 
+}
+    
+    #titleboxresp{
+    z-index: -1;
+    font-family: 'Karla', sans-serif;
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    
+    }
+    
+    .subtitleresp{
+        font-size: 2vw;
+        position: absolute;
+        text-align: center;
+        margin-top: 2vw;
+        letter-spacing: 0.6vw;
+        margin-left: -15vw;
+    }
+    
+    
+    @media screen and (min-width: 0px) and (max-width: 522px){
+
+    
+    #smartphone {
+        display: block;
+        width: 100%;
+        height: auto;
+        
+    }
+        
+        #bigscreens{
+            display: none;
+        }
+}
+    
+  @media screen and (min-width: 522px){
+
+    
+    #smartphone {
+        display: none;
+    }
+        
+        #bigscreens{
+            display: block;
+        }
+}  
+    
+    
+    
+.radarbg{
+   
+        background-repeat: no-repeat;
+        background-image: url(assets/radar.jpg);
+        background-size:cover;
+}
+
+
+.labeltablet{
+       background-color: black;
+        margin: 0;
+        padding: 40%;
+        padding-top: 10%;
+        background-attachment: absolute;
+        background-repeat: no-repeat;
+        background-image: url(assets/rete.jpg);
+        background-size:cover;
+    
+    display: none;
+    
+}
+
+.label2tablet{
+       background-color: black;
+        margin: 0;
+        padding: 40%;
+        padding-top: 10%;
+        background-attachment: absolute;
+        background-repeat: no-repeat;
+        background-image: url(assets/barre.jpg);
+        background-size:cover;
+    
+    display: none;
+    
+}
+
+
+
+@media screen and (min-width: 0px) and (max-width: 683px){
+    .label{
+        display: none;
+        
+    }
+    .label2{
+       display: none;
+    }
+    
+    .labeltablet{
+        display: block;
+        
+    }
+    .label2tablet{
+       display: block;
+    }
+    
+}
+
+
+@media screen and (min-width: 683px){
+    .label{
+        display: block;
+        
+    }
+    .label2{
+       display: block;
+    }
+    .labeltablet{
+        display: none;
+        
+    }
+    .label2tablet{
+       display: none;
+    }
+    
+    
+}
+
+
+
+
+
+
+
