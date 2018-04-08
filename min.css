@@ -54,6 +54,7 @@
 
 
 #rainfirst{
+    margin-top: -10%;
     margin-left: 50%;
     animation-name: raincomp1;
     animation-duration: 2s;
