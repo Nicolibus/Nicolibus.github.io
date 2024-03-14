@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="config.js"></script>
+    <script src="./offline/d3.js"></script>
+    <title>Sustainability Trajectories</title>
+    <!-- <link rel="icon" type="image/x-icon" href="/favicon.ico"> -->
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="loading">
+        <p>loading
+            <span>.</span>
+            <span>.</span>
+            <span>.</span>
+        </p>
+    </div>
+    <div id="intro">
+        <h1 id="mainTitle">
+            Sustainability
+            Trajectories
+            <!-- the <span style="color:var(--violet-short)">Short</span>, <span style="color:var(--violet-medium)">Medium</span>, <br>and <span style="color:var(--violet-long)">Long</span> Term -->
+        </h1>
+        <h3>Impact of Topics in the <span id="long-term-legend">Long</span>, <span id="medium-term-legend">Medium</span>, and <span id="short-term-legend">Short</span> term</h2>
+        <section>
+            <p id="p1">This data is based on both stakeholder input and <span class="cn"></span> management input.</p>
+            <p id="p2">The input coming from the management of <span class="cn"></span> constitutes the <b>financial impact</b> <nobr>&#8594; x-axis</nobr>
+                <br>Whereas the stakeholders' input constitutes the <b>Non-financial impact</b> <nobr>&#8593; y-axis</nobr></p>
+            <p id="p3">The timeframes have been aligned to the Corporate Sustainability Reporting Directive (CSRD)</p>
+        </section>
+
+    </div>
+    <div id="dashboard">
+        <div id="container"></div>
+        <div id="filters">
+            <h2>Select Timeframe</h2>
+            <div id="timeScales"></div>
+            <h2>Stakeholder</h2>
+            <div id="sectors">
+                <div id="list">
+                    <div id="header">
+                        <span>▲</span>
+                    </div>
+                    <div id="sectorsBody">
+                        <!-- <p>test</p>
+                        <p>test</p>
+                        <p>test</p>
+                        <p>test</p>
+                        <p>test</p> -->
+                    </div>
+                    <div id="footer">
+                        <div id="selectAll">Select All</div>
+                    </div>
+                </div>
+                <div id="selected">
+                    <span>test</span>
+                    <span>▼</span>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    
+    <script>
+        const defaultFilter = "All stakeholders",
+              defaultTimescale = "Short term";
+        let currentTimescale = defaultTimescale,
+            currentFilter = defaultFilter;
+        const tSSP = {
+            "Short term" :{x: 100, fill: "var(--violet-short)", labelName:"label-short" },
+            "Medium term" : {x: 50, fill: "var(--violet-medium)", labelName:"label-medium"},
+            "Long term" : {x: 0, fill: "var(--violet-long)", labelName:"label-long"},
+        }
+        const transDuration = 800;
+        
+        console.log()
+        //d3.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vQwx1fIDflG3RjMG1EqK9VZb29PcROZcp6N9NOhTYkB-O9drypZrVMPr7njCkTyBptkpNcHMJOQQCHj/pub?output=csv').then(rawData=>{
+        d3.csv(cfg.data).then(rawData=>{
+            const stakeholderData = rawData.map(row=>row["Stakeholder"]).filter((e,n,l)=>l.indexOf(e)===n && e !== '' && e !== "All stakeholders")
+            rawData.forEach(row => {
+                row["X-axis scores"] = +row["X-axis scores"]
+                row["Y-axis scores"] = +row["Y-axis scores"]
+            });
+            //scales
+            // are x and y comparable? do I need them?
+            const innerMargin = 10, gap = 12;
+            const metricMarksMargin = 100 - (innerMargin + (innerMargin/3))
+            const leftMargin = innerMargin * 1.4
+            const labelSize = 1.75;
+            const label = {w: 6, h: 2.5, baseline:metricMarksMargin + (innerMargin/4), leftMargin:4};
+            const extentX = d3.extent(rawData, d=>d["X-axis scores"]);
+            const xGap = extentX[0] > 0;
+            const extentY = d3.extent(rawData, d=>d["Y-axis scores"]);
+            const minXChart = 0 + leftMargin + (xGap?gap:0)
+            const maxXChart = metricMarksMargin
+
+            const scaleX = d3.scaleLinear().domain(extentX).range([0 + leftMargin + (xGap?gap:0) ,metricMarksMargin]).nice();
+            //const scaleY = d3.scaleLinear().domain(extentY).range([100 - innerMargin, 0 + innerMargin ]) // ?? squeeze proportionally
+            const scaleY = d3.scaleLinear().domain([0,extentY[1]]).range([metricMarksMargin, 0 + innerMargin ]).nice() // ?? squeeze proportionally
+            console.log(extentX,extentY)
+
+            
+            const svg = d3.select('#container')
+                .append('svg')
+                .attr('viewBox', '0 0 100 100')
+            
+            const axis = svg.append("g").attr("id","axis")
+                //.attr("transform",`translate(${100-metricMarksMargin},0)`)
+                .attr("transform",`translate(${ 100 - leftMargin },0)`)
+                console.log(metricMarksMargin)
+            
+            const yAxis = d3.axisLeft(scaleY)
+                .tickSize(metricMarksMargin-leftMargin)
+            
+                
+            axis.call(yAxis)
+
+            axis.selectAll("line").attr("opacity",cfg.showYGrid ? 1 : 0 )
+            console.log(axis.selectAll(".tick"))
+
+            const bottomLine = svg.append("g").attr("id","bottomLine").attr("transform",`translate(0,${metricMarksMargin})`)
+            const xAxis = d3.axisBottom(scaleX)
+                .tickSize(0)
+                
+            bottomLine.call(xAxis)
+
+            if(cfg.threshold.x){
+                svg.append("line")
+                    .attr("x1",scaleX(cfg.threshold.x))
+                    .attr("y1",innerMargin)
+                    .attr("x2",scaleX(cfg.threshold.x))
+                    .attr("y2",maxXChart)
+                    .attr("stroke-width",.1)
+                    .attr("stroke","var(--light-contrast)")
+                    
+                    
+
+            }
+            if(cfg.threshold.y){
+                svg.append("line")
+                    .attr("x1",leftMargin)
+                    .attr("y1",scaleY(cfg.threshold.y))
+                    .attr("x2",metricMarksMargin)
+                    .attr("y2",scaleY(cfg.threshold.y))
+                    .attr("stroke-width",.1)
+                    .attr("stroke","var(--light-contrast)")
+                    
+            }
+            // const defs = svg.append("defs")
+            
+            // const whole = defs.append("linearGradient")
+            //     .attr("id", "whole")
+            // whole.append("stop")
+            //     .attr("offset", "0")
+            //     .attr("stop-color", "var(--violet-short)")
+            // whole.append("stop")
+            //     .attr("offset", "1")
+            //     .attr("stop-color", "var(--violet-long)")
+
+            // const sToM = defs.append("linearGradient")
+            //     .attr("id", "short-to-medium")
+            // sToM.append("stop")
+            //     .attr("x",0)
+            //     .attr("y",0)
+            //     .attr("offset", "0")
+            //     .attr("stop-color", "var(--violet-short)")
+            // sToM.append("stop")
+            //     .attr("offset", "1")
+            //     .attr("stop-color", "var(--violet-medium)")
+                
+            // const mToL = defs.append("radialGradient")
+            //     .attr("id", "medium-to-long")
+            // mToL.append("stop")
+            //     .attr("offset", "0")
+            //     .attr("stop-color", "var(--violet-medium)")
+            // mToL.append("stop")
+            //     .attr("offset", "1")
+            //     .attr("stop-color", "var(--violet-long)")
+                
+                
+            
+            
+            const deepCopy = (x)=>JSON.parse(JSON.stringify(x))
+            const draw = (filter,timescale,prevTimescale,prevFilter) => {
+                //data preprocessing
+                const data = deepCopy(rawData)
+                    .filter(e=>e["Stakeholder"] === filter)//data selection
+                
+                const cometData = d3
+                    .groups(data, d => d.Issues)
+                    
+
+                //prepare lines
+                const line = d3.line()
+                    .x(d=>scaleX(d["X-axis scores"]))
+                    .y(d=>scaleY(d["Y-axis scores"]))
+                
+                const comets = cometData
+                    .map( comet => ({
+                        name:comet[0], 
+                        points:comet[1], 
+                        path:line(comet[1]), 
+                        coordinates:comet[1].reduce((l,p)=>({...l,[p['Timescale']]:{x:p['X-axis scores'],y:p['Y-axis scores']}}),{}),
+                    }));
+                console.log(comets[0].coordinates["Long term"])
+
+                
+                
+                //draw main
+                const cometsGeometry = svg.selectAll('.comet')
+                    .data(comets,(d,i)=>i)
+                    .join(
+                        enter=>{
+                            const cometG = enter.append('g')
+                            .classed('comet',true)
+                            
+                            cometG.selectAll('path')
+                                .data(d=>[d.path],(d,i)=>i)
+                                .join('path')
+                                .classed("fullTrajectory",true)
+                                    .attr('d',d=>d)
+                                    .attr('stroke','var(--light-contrast)')
+                                    
+                                    .attr("stroke-width",.1)
+                                    
+                                    .attr('fill','none')
+                                    .classed("hide",true)
+                            cometG.append("line")
+                                .classed('sToM',true)
+                                .attr("x1", d=>scaleX(d.coordinates["Short term"].x))
+                                .attr("y1", d=>scaleY(d.coordinates["Short term"].y))
+                                .attr("x2", d=>scaleX(d.coordinates["Medium term"].x))
+                                .attr("y2", d=>scaleY(d.coordinates["Medium term"].y))
+                                .attr("stroke","var(--violet-short)")
+                                .attr("stroke-width",.3)
+                                .classed("hide",true)
+                            
+                            cometG.append("line")
+                                .classed('mToL',true)
+                                .attr("x1", d=>scaleX(d.coordinates["Medium term"].x))
+                                .attr("y1", d=>scaleY(d.coordinates["Medium term"].y))
+                                .attr("x2", d=>scaleX(d.coordinates["Long term"].x))
+                                .attr("y2", d=>scaleY(d.coordinates["Long term"].y))
+                                .attr("stroke","var(--violet-medium)")
+                                .attr("stroke-width",.3)
+                                .classed("hide",true)
+                                
+                
+                            cometG
+                                .selectAll('.bgDot')
+                                .data(d=>d.points, (d,i)=>i)
+                                .join('circle')
+                                    .attr('cx',d=>scaleX(d["X-axis scores"]))
+                                    .attr('cy',d=>scaleY(d["Y-axis scores"]))
+                                    .attr('r',0.5)
+                                    .attr("fill",d=> d["Timescale"] === "Short term" ? "var(--violet-short)"  : d["Timescale"] === "Medium term" ? "var(--violet-medium)" : "var(--violet-long)"  )
+                                    .classed("bgDot",true)
+                                    .classed("hide",true)
+                            
+                            
+                            const labels = cometG
+                                .append("g")
+                                .attr("opacity",0)
+                                .classed("label",true)  
+                            cometG.append("g")
+                                .classed("animationLine",true)
+                            cometG.append("circle")
+                                .attr("r",.75)
+                                .attr("fill", timescale === "Short term" ? "var(--violet-short)" : timescale === "Medium term" ? "var(--violet-medium)" : "var(--violet-long)" )
+                                .attr("stroke-width","0.15px")
+                                .attr("stroke","var(--dark)")
+                                .attr("cx", d=>scaleX(d.coordinates[timescale].x))
+                                .attr("cy", d=>scaleY(d.coordinates[timescale].y))
+                                .classed("pointer",true)
+                                .on("mouseover",function(e,d){
+                                    d3.select(this.parentElement)
+                                        .select(".label")
+                                        .transition()
+                                        .duration(200)
+                                        .attr("opacity",1)
+                                    d3.select(this.parentElement)
+                                        .selectAll(".hide:not(.fullTrajectory)")
+                                        .style("opacity",0)
+                                        .transition()
+                                        .style("opacity",1)
+
+                                    const nameLabel = d3.select("#container").append("div")
+                                        .attr("id","name")
+                                        //.attr("transform",`translate(${e.screenX}px,${e.screenY})px`)
+                                        //.style("bottom",(window.innerHeight - e.pageY) + "px")
+                                        //.style("left",e.pageX + "px")
+                                    
+                                        
+                                    nameLabel
+                                        .append("span")
+                                        .html(d.name)
+
+                                        
+                                })
+                                .on("mouseout",function(){
+                                    d3.select(this.parentElement)
+                                        .select(".label")
+                                        .transition()
+                                        .duration(200)
+                                        .attr("opacity",0)
+                                    d3.select(this.parentElement)
+                                        .selectAll(".hide:not(.fullTrajectory)")
+                                        .style("opacity",1)
+                                        .transition()
+                                        .style("opacity",0)
+                                    d3.selectAll("#name").transition().duration(200).style("opacity",0).remove()
+                                })
+                            
+                            
+                            labels   
+                                .append("rect")
+                                .attr("r",labelSize)
+                                .attr("fill", "var(--dark)" )
+                                .attr("x", label.w/2 + label.leftMargin )
+                                .attr("y", d=>scaleY(d.coordinates[timescale].y) - (label.h/2))
+                                .attr("width", label.w)
+                                .attr("height", label.h)
+                                .classed("flagY",true)
+                                .attr("rx", 0.5)
+                                .attr("ry", 0.5)
+                            labels   
+                                .append("text")
+                                .attr("fill", "var(--bright)" )
+                                .text(d=>d.coordinates[timescale].y)
+                                .attr("x", d=>label.w + label.leftMargin)
+                                .attr("y", d=>scaleY(d.coordinates[timescale].y) + (label.h/5.5))
+                                .classed("flagTextY",true)
+                                
+                                
+                            labels   
+                                .append("rect")
+                                .attr("r",labelSize)
+                                .attr("fill", "var(--dark)" )
+                                .attr("x", d=>scaleX(d.coordinates[timescale].x) - (label.w/2))
+                                .attr("y", d=>label.baseline)
+                                .attr("width", label.w)
+                                .attr("height", label.h)
+                                .attr("rx", 0.5)
+                                .attr("ry", 0.5)
+                                .classed("flagX",true)
+                            labels   
+                                .append("text")
+                                .attr("fill", "var(--bright)" )
+                                .text(d=>d.coordinates[timescale].x)
+                                .attr("x", d=>scaleX(d.coordinates[timescale].x))
+                                .attr("y", d=>label.baseline + (label.h/1.5))
+                                .classed("flagTextX",true)
+
+                            
+                            return cometG 
+                        },
+                        update=>{
+                            const cometG = update
+                            
+                            const pointers = cometG.select(".pointer")
+                            console.log(timescale , prevTimescale)
+                            if(filter === prevFilter){
+                                    cometG.select("path").classed("hide",false)
+                                setTimeout(() => {
+                                    cometG.select("path").classed("hide",true)
+                                }, transDuration*2);
+                                if(prevTimescale && timescale !== "Medium term" && prevTimescale !== "Medium term"){
+                                    pointers
+                                        .transition()
+                                        .duration(transDuration)
+                                        .attr("cx", d=>scaleX(d.coordinates["Medium term"].x))
+                                        .attr("cy", d=>scaleY(d.coordinates["Medium term"].y))
+                                        .attr("fill", "var(--violet-medium)")
+                                        
+                                        
+                                        .transition()
+                                        .duration(transDuration)
+                                        .attr("cx", d=>scaleX(d.coordinates[timescale].x))
+                                        .attr("cy", d=>scaleY(d.coordinates[timescale].y))
+                                        .attr("fill", timescale === "Short term" ? "var(--violet-short)" : timescale === "Medium term" ? "var(--violet-medium)" : "var(--violet-long)" )
+
+                                        if(currentTimescale === "Long term"){
+                                            cometG.select(".animationLine").append("line")
+                                                .classed('sToMTemp',true)
+                                                .attr("stroke","var(--violet-short)")
+                                                .attr("stroke-width",.3)
+                                                .attr("x1", d=>scaleX(d.coordinates["Short term"].x))
+                                                .attr("y1", d=>scaleY(d.coordinates["Short term"].y))
+                                                .attr("x2", d=>scaleX(d.coordinates["Short term"].x))
+                                                .attr("y2", d=>scaleY(d.coordinates["Short term"].y))
+                                                .transition()
+                                                .duration(transDuration)
+                                                .attr("x2", d=>scaleX(d.coordinates["Medium term"].x))
+                                                .attr("y2", d=>scaleY(d.coordinates["Medium term"].y))
+                                                .transition()
+                                                .duration(300)
+                                                .delay(1000)
+                                                .attr("x1", d=>scaleX(d.coordinates["Medium term"].x))
+                                                .attr("y1", d=>scaleY(d.coordinates["Medium term"].y))
+                                                .remove()
+                                                
+                                                
+                                            cometG.select(".animationLine").append("line")
+                                                .classed('sToMTemp',true)
+                                                .attr("stroke-linecap","round")
+                                                .attr("stroke","var(--violet-medium)")
+                                                .attr("stroke-width",.3)
+                                                .attr("x1", d=>scaleX(d.coordinates["Medium term"].x))
+                                                .attr("y1", d=>scaleY(d.coordinates["Medium term"].y))
+                                                .attr("x2", d=>scaleX(d.coordinates["Medium term"].x))
+                                                .attr("y2", d=>scaleY(d.coordinates["Medium term"].y))
+                                                .transition()
+                                                .duration(transDuration)
+                                                .delay(transDuration)
+                                                .attr("x2", d=>scaleX(d.coordinates["Long term"].x))
+                                                .attr("y2", d=>scaleY(d.coordinates["Long term"].y))
+                                                .transition()
+                                                .duration(300)
+                                                .delay(400)
+                                                .attr("x1", d=>scaleX(d.coordinates["Long term"].x))
+                                                .attr("y1", d=>scaleY(d.coordinates["Long term"].y))
+                                                .remove()
+                                                
+                                                
+                                        }else{
+                                            cometG.select(".animationLine").append("line")
+                                                .classed('sToMTemp',true)
+                                                .attr("stroke-linecap","round")
+                                                .attr("stroke","var(--violet-medium)")
+                                                .attr("stroke-width",.3)
+                                                .attr("x1", d=>scaleX(d.coordinates["Long term"].x))
+                                                .attr("y1", d=>scaleY(d.coordinates["Long term"].y))
+                                                .attr("x2", d=>scaleX(d.coordinates["Long term"].x))
+                                                .attr("y2", d=>scaleY(d.coordinates["Long term"].y))
+                                                .transition()
+                                                .duration(transDuration)
+                                                .attr("x2", d=>scaleX(d.coordinates["Medium term"].x))
+                                                .attr("y2", d=>scaleY(d.coordinates["Medium term"].y))
+                                                .transition()
+                                                .duration(300)
+                                                .delay(1000)
+                                                .attr("x1", d=>scaleX(d.coordinates["Medium term"].x))
+                                                .attr("y1", d=>scaleY(d.coordinates["Medium term"].y))
+                                                .remove()
+                                                
+                                                
+                                            cometG.select(".animationLine").append("line")
+                                                .classed('sToMTemp',true)
+                                                .attr("stroke-linecap","round")
+                                                .attr("stroke","var(--violet-short)")
+                                                .attr("stroke-width",.3)
+                                                .attr("x1", d=>scaleX(d.coordinates["Medium term"].x))
+                                                .attr("y1", d=>scaleY(d.coordinates["Medium term"].y))
+                                                .attr("x2", d=>scaleX(d.coordinates["Medium term"].x))
+                                                .attr("y2", d=>scaleY(d.coordinates["Medium term"].y))
+                                                .transition()
+                                                .duration(transDuration)
+                                                .delay(transDuration)
+                                                .attr("x2", d=>scaleX(d.coordinates["Short term"].x))
+                                                .attr("y2", d=>scaleY(d.coordinates["Short term"].y))
+                                                .transition()
+                                                .duration(300)
+                                                .delay(400)
+                                                .attr("x1", d=>scaleX(d.coordinates["Short term"].x))
+                                                .attr("y1", d=>scaleY(d.coordinates["Short term"].y))
+                                                .remove()
+                                        }
+                                        
+                                }else{
+                                    pointers
+                                        .transition()
+                                        .duration(transDuration)
+                                        .attr("fill", timescale === "Short term" ? "var(--violet-short)" : timescale === "Medium term" ? "var(--violet-medium)" : "var(--violet-long)" )
+                                        .attr("cx", d=>scaleX(d.coordinates[timescale].x))
+                                        .attr("cy", d=>scaleY(d.coordinates[timescale].y))
+                                    
+                                    if(prevTimescale === "Medium term" && timescale === "Long term"){
+                                            console.log("M to L")
+                                        cometG.select(".animationLine").append("line")
+                                            .classed('sToMTemp',true)
+                                            .attr("stroke","var(--violet-medium)")
+                                            .attr("stroke-width",.3)
+                                            .attr("x1", d=>scaleX(d.coordinates["Medium term"].x))
+                                            .attr("y1", d=>scaleY(d.coordinates["Medium term"].y))
+                                            .attr("x2", d=>scaleX(d.coordinates["Medium term"].x))
+                                            .attr("y2", d=>scaleY(d.coordinates["Medium term"].y))
+                                            .transition()
+                                            .duration(transDuration)
+                                            .attr("x2", d=>scaleX(d.coordinates["Long term"].x))
+                                            .attr("y2", d=>scaleY(d.coordinates["Long term"].y))
+                                            .transition()
+                                            .duration(300)
+                                            .delay(400)
+                                            .attr("x1", d=>scaleX(d.coordinates["Long term"].x))
+                                            .attr("y1", d=>scaleY(d.coordinates["Long term"].y))
+                                            .remove()
+                                            
+                                            
+                                    }else if(prevTimescale === "Long term" && timescale === "Medium term"){
+                                        console.log("L to M")
+                                        cometG.select(".animationLine").append("line")
+                                            .classed('sToMTemp',true)
+                                            .attr("stroke-linecap","round")
+                                            .attr("stroke","var(--violet-medium)")
+                                            .attr("stroke-width",.3)
+                                            .attr("x1", d=>scaleX(d.coordinates["Long term"].x))
+                                            .attr("y1", d=>scaleY(d.coordinates["Long term"].y))
+                                            .attr("x2", d=>scaleX(d.coordinates["Long term"].x))
+                                            .attr("y2", d=>scaleY(d.coordinates["Long term"].y))
+                                            .transition()
+                                            .duration(transDuration)
+                                            .attr("x2", d=>scaleX(d.coordinates["Medium term"].x))
+                                            .attr("y2", d=>scaleY(d.coordinates["Medium term"].y))
+                                            .transition()
+                                            .duration(300)
+                                            .delay(400)
+                                            .attr("x1", d=>scaleX(d.coordinates["Medium term"].x))
+                                            .attr("y1", d=>scaleY(d.coordinates["Medium term"].y))
+                                            .remove()
+                                    }else if(prevTimescale === "Short term" && timescale === "Medium term" ){
+                                        
+                                        cometG.select(".animationLine").append("line")
+                                            .classed('sToMTemp',true)
+                                            .attr("stroke","var(--violet-medium)")
+                                            .attr("stroke-width",.3)
+                                            .attr("x1", d=>scaleX(d.coordinates["Short term"].x))
+                                            .attr("y1", d=>scaleY(d.coordinates["Short term"].y))
+                                            .attr("x2", d=>scaleX(d.coordinates["Short term"].x))
+                                            .attr("y2", d=>scaleY(d.coordinates["Short term"].y))
+                                            .transition()
+                                            .duration(transDuration)
+                                            .attr("x2", d=>scaleX(d.coordinates["Medium term"].x))
+                                            .attr("y2", d=>scaleY(d.coordinates["Medium term"].y))
+                                            .transition()
+                                            .duration(300)
+                                            .delay(400)
+                                            .attr("x1", d=>scaleX(d.coordinates["Medium term"].x))
+                                            .attr("y1", d=>scaleY(d.coordinates["Medium term"].y))
+                                            .remove()
+                                    }else{
+                                        console.log("ELSE")
+                                        cometG.select(".animationLine").append("line")
+                                            .attr("stroke-linecap","round")
+                                            .classed('sToMTemp',true)
+                                            .attr("stroke","var(--violet-medium)")
+                                            .attr("stroke-width",.3)
+                                            .attr("x1", d=>scaleX(d.coordinates["Medium term"].x))
+                                            .attr("y1", d=>scaleY(d.coordinates["Medium term"].y))
+                                            .attr("x2", d=>scaleX(d.coordinates["Medium term"].x))
+                                            .attr("y2", d=>scaleY(d.coordinates["Medium term"].y))
+                                            .transition()
+                                            .duration(transDuration)
+                                            .attr("x2", d=>scaleX(d.coordinates["Short term"].x))
+                                            .attr("y2", d=>scaleY(d.coordinates["Short term"].y))
+                                            .transition()
+                                            .duration(300)
+                                            .delay(400)
+                                            .attr("x1", d=>scaleX(d.coordinates["Short term"].x))
+                                            .attr("y1", d=>scaleY(d.coordinates["Short term"].y))
+                                            .remove()
+                                    }
+                                        
+                                }
+                            }
+                            else{
+                                pointers
+                                        .transition()
+                                        .duration(transDuration)
+                                        .attr("fill", timescale === "Short term" ? "var(--violet-short)" : timescale === "Medium term" ? "var(--violet-medium)" : "var(--violet-long)" )
+                                        .attr("cx", d=>scaleX(d.coordinates[timescale].x))
+                                        .attr("cy", d=>scaleY(d.coordinates[timescale].y))
+                            }
+                            cometG.selectAll('path')
+                                .data(d=>[d.path],(d,i)=>i)
+                                .join('path')
+                                    .attr('d',d=>d)
+                                    //.attr('stroke','url(#whole)')
+                                    .attr('fill','none')
+                            cometG.select(".sToM")
+                                .transition()
+                                .attr("x1", d=>scaleX(d.coordinates["Short term"].x))
+                                .attr("y1", d=>scaleY(d.coordinates["Short term"].y))
+                                .attr("x2", d=>scaleX(d.coordinates["Medium term"].x))
+                                .attr("y2", d=>scaleY(d.coordinates["Medium term"].y))
+                                .attr("stroke","var(--violet-short)")
+                            cometG.select(".mToL")
+                                .transition()
+                                .attr("x1", d=>scaleX(d.coordinates["Medium term"].x))
+                                .attr("y1", d=>scaleY(d.coordinates["Medium term"].y))
+                                .attr("x2", d=>scaleX(d.coordinates["Long term"].x))
+                                .attr("y2", d=>scaleY(d.coordinates["Long term"].y))
+                                .attr("stroke","var(--violet-medium)")
+
+                            cometG
+                                .selectAll('.bgDot')
+                                .data(d=>d.points, (d,i)=>i)
+                                .join('circle')
+                                    .classed("bgDot",true)
+                                    .transition()
+                                    .attr('cx',d=>scaleX(d["X-axis scores"]))
+                                    .attr('cy',d=>scaleY(d["Y-axis scores"]))
+                                    
+                                    .attr("fill",d=> d["Timescale"] === "Short term" ? "var(--violet-short)"  : d["Timescale"] === "Medium term" ? "var(--violet-medium)" : "var(--violet-long)"  )
+                            const labels = cometG
+                                .select(".label")
+                                
+                            labels   
+                                .select(".flagY")
+                                .attr("y", d=>scaleY(d.coordinates[timescale].y) - (label.h/2))
+                            labels   
+                                .select(".flagTextY")
+                                .text(d=>d.coordinates[timescale].y)
+                                // .attr("x", d=>label.w + label.leftMargin)
+                                .attr("y", d=>scaleY(d.coordinates[timescale].y) + (label.h/5.5))
+                                
+                                
+                                
+                            labels   
+                                .select(".flagX")
+                                .attr("x", d=>scaleX(d.coordinates[timescale].x) - (label.w/2))
+                                // .attr("y", d=>label.baseline)
+                                
+                            labels   
+                                .select(".flagTextX")
+                                .text(d=>d.coordinates[timescale].x)
+                                .attr("x", d=>scaleX(d.coordinates[timescale].x))
+                                // .attr("y", d=>label.baseline + (label.h/1.5))
+
+                                
+                                
+                        return update
+                    })
+                    d3.select("#selector")
+                        .transition()
+                        .attr("cx",tSSP[timescale].x)
+                        .attr("fill",tSSP[timescale].fill)
+                    d3.selectAll(".timeScalePositionLabel").style("font-family",function(){
+                        
+                        return d3.select(this).attr("id") === tSSP[timescale].labelName ? "gilroy-bold" : ""
+                    })
+                
+                filters.select("#sectors")
+                    .select("#selected")
+                    .select("span")
+                    .html(currentFilter)
+
+                filters.select("#sectors")
+                    .on("click",function(e){
+                        e.stopPropagation()
+                        
+                        d3.select(this).attr("data-open",true)
+                        //.select("#list").style("opacity",1).style("pointer-events","all")
+                        //d3.select("#sectorsBody").style("height","100%") 
+                    })
+                d3.select("#sectorsBody")
+                    .selectAll(".stakeholder")
+                    .data(stakeholderData.filter(e=>e!==currentFilter))
+                    .join("div")
+                    .classed("stakeholder",true)
+                    .html(d=>d)
+                    .on("click",(e,d)=>{
+                        e.stopPropagation()
+                        d3.select("#sectors").attr("data-open",false)
+                        const previousFilter = currentFilter
+                        currentFilter = d
+                        //console.log("filter by : ",currentFilter)
+                        draw(currentFilter,currentTimescale,currentFilter,previousFilter)
+                        d3.select("#selectAll").style("display","block")
+                    })
+                d3.select("#intro").select("h3")
+                    .selectAll("span")
+                    .attr("data-selected",false)
+                const timescaleInLegend = `#${timescale.split(" ")[0].toLowerCase()}-term-legend`
+                d3.select(timescaleInLegend)
+                    .attr("data-selected",true)
+                
+            }
+            
+            // svg.append('line')
+            //     .classed('graphLine',true)
+            //     .attr('x1',10)
+            //     .attr('x2',10)
+            //     .attr('y2',10)
+            //     .attr('y1',90)
+            
+            svg.append('line')
+                .classed('xAxis',true)
+                .attr('x1', xGap ? leftMargin+gap: leftMargin)
+                .attr('x2',metricMarksMargin)
+                .attr('y2',metricMarksMargin)
+                .attr('y1',metricMarksMargin)
+            xGap ? svg.append('line')
+                .classed('xAxisGap',true)
+                .attr('x1',leftMargin)
+                .attr('x2',leftMargin+gap-0.25)
+                .attr('y2',metricMarksMargin)
+                .attr('y1',metricMarksMargin)
+                : null;
+
+            svg.append("text")
+            .classed("barLabel",true)
+            .attr("id","xComponentName")
+            .text("Financial Impact")
+            .attr("y",100 - (innerMargin/2))
+            //.attr("x", xGap ? leftMargin+gap: leftMargin )
+            .attr("x", leftMargin )
+
+            svg.append("text")
+            .classed("barLabel",true)
+            .attr("id","yComponentName")
+            .text("Non-Financial Impact")
+            .attr("y",100 - innerMargin - 0.9)
+            .attr("x", leftMargin/4 )
+
+        
+        
+        
+
+        const filters = d3.select("#filters")
+
+            /*************/
+            /* TIMESCALE */
+            /*************/
+        const timescales = filters.select("#timeScales")
+            .append('svg')
+            .attr('viewBox', '0 0 100 10')
+        const timeScalesY = 5
+        timescales.append("line")
+            .attr("x1", 0)
+            .attr("y1", timeScalesY)
+            .attr("x2", 50)
+            .attr("y2", timeScalesY)
+            .attr("stroke", "var(--violet-medium)")
+        timescales.append("line")
+            .attr("x1", 50)
+            .attr("y1", timeScalesY)
+            .attr("x2", 100)
+            .attr("y2", timeScalesY)
+            .attr("stroke", "var(--violet-short)")
+
+        timescales.append("circle")
+            .classed("timeScalePosition",true)
+            .attr("cx", 0)
+            .attr("cy", timeScalesY)
+            .attr("r", 1.5)
+            .attr("fill", "var(--violet-long)")
+            .on("click",()=>{
+                if(currentTimescale !== "Long term"){
+                    previousTimescale = currentTimescale
+                    currentTimescale = "Long term"
+                    draw(currentFilter, currentTimescale, previousTimescale, currentFilter)
+                }
+            })
+        d3.select("#long-term-legend")
+        .on("click",()=>{
+                if(currentTimescale !== "Long term"){
+                    previousTimescale = currentTimescale
+                    currentTimescale = "Long term"
+                    draw(currentFilter, currentTimescale, previousTimescale, currentFilter)
+                }
+            })
+        timescales.append("circle")
+            .classed("timeScalePosition",true)
+            .attr("cx", 50)
+            .attr("cy", timeScalesY)
+            .attr("r", 1.5)
+            .attr("fill", "var(--violet-medium)")
+            .on("click",()=>{
+                if(currentTimescale !== "Medium term"){
+                    previousTimescale = currentTimescale
+                    currentTimescale = "Medium term"
+                    draw(currentFilter, currentTimescale, previousTimescale, currentFilter)
+                }
+            })
+        d3.select("#medium-term-legend")
+        .on("click",()=>{
+                if(currentTimescale !== "Medium term"){
+                    previousTimescale = currentTimescale
+                    currentTimescale = "Medium term"
+                    draw(currentFilter, currentTimescale, previousTimescale, currentFilter)
+                }
+        })
+
+        timescales.append("circle")
+            .classed("timeScalePosition",true)
+            .attr("cx", 100)
+            .attr("cy", timeScalesY)
+            .attr("r", 1.5)
+            .attr("fill", "var(--violet-short)")
+            .on("click",()=>{
+                if(currentTimescale !== "Short term"){
+                    previousTimescale = currentTimescale
+                    currentTimescale = "Short term"
+                    draw(currentFilter, currentTimescale, previousTimescale, currentFilter)
+                }
+            })
+        d3.select("#short-term-legend")
+        .on("click",()=>{
+                if(currentTimescale !== "Short term"){
+                    previousTimescale = currentTimescale
+                    currentTimescale = "Short term"
+                    draw(currentFilter, currentTimescale, previousTimescale, currentFilter)
+                }
+            })
+
+        timescales.append("text")
+            .attr("id", "label-long")
+            .classed("timeScalePositionLabel",true)
+            .attr("x", -2)
+            .attr("y", timeScalesY-5)
+            .text("long term")
+            .style("text-anchor","start")
+        timescales.append("text")
+            .attr("id", "label-medium")
+            .classed("timeScalePositionLabel",true)
+            .attr("x", 50)
+            .attr("y", timeScalesY-5)
+            .text("medium term")
+            .style("text-anchor","middle")
+        timescales.append("text")
+            .attr("id", "label-short")
+            .classed("timeScalePositionLabel",true)
+            .attr("x", 102)
+            .attr("y", timeScalesY-5)
+            .text("short term")
+            .style("text-anchor","end")
+        
+        const draggingSelector = function(e,selector){
+            selector.style("cursor","grabbing")
+            
+            e.x > 0 && e.x < 100 && selector.attr("cx",e.x)
+            
+            const currentPoint = +selector.attr("cx")
+            if(currentPoint <= 75 && currentPoint >= 25){
+                selector.attr("fill","var(--violet-medium)")
+            }else if(currentPoint < 25){
+                selector.attr("fill","var(--violet-long)")
+            }else{
+                selector.attr("fill","var(--violet-short)")
+            }
+        }
+        const timeScaleSelection = function(e,selector){
+            selector.style("cursor","grab")
+            
+            //e.x > 0 && e.x < 100 && selector.attr("cx",e.x)
+            const finalPoint = +selector.attr("cx")
+                
+                if(finalPoint <= 75 && finalPoint >= 25){
+                    selector.transition().attr("cx",50)
+                    previousFilter = currentFilter 
+                    prevTimescale = currentTimescale 
+                    if(currentTimescale!== "Medium term"){
+                        currentTimescale = "Medium term"
+                        draw(currentFilter, currentTimescale, prevTimescale, previousFilter)
+                    }
+                }else if(finalPoint < 25){
+                    selector.transition().attr("cx",0)
+                    previousFilter = currentFilter 
+                    prevTimescale = currentTimescale 
+                    if(currentTimescale !== "Long term"){
+                        currentTimescale = "Long term"
+                        draw(currentFilter, currentTimescale, prevTimescale, previousFilter)
+                    }
+                }else{
+                    selector.transition().attr("cx",100)
+                    previousFilter = currentFilter 
+                    prevTimescale = currentTimescale 
+                    if(currentTimescale !== "Short term"){
+                        currentTimescale = "Short term"
+                        draw(currentFilter, currentTimescale, prevTimescale, previousFilter)
+                    }
+                }
+        }
+        timescales.append("circle")
+            .attr("id", "selector")
+            .attr("cx", 100)
+            .attr("cy", timeScalesY)
+            .attr("r", 2.5)
+            .attr("fill", "var(--violet-short)")
+            .attr("stroke", "var(--dark)")
+            .attr("stroke-width", .5)
+            .call(d3.drag()
+                .on("drag", function(e){draggingSelector(e,d3.select(this))})
+                .on("end", function(e){timeScaleSelection(e,d3.select(this))})
+            );
+            
+            /***********/
+            /* SECTORS */
+            /***********/
+
+            
+            filters.select("#header")
+                .on("click",function(e){
+                    e.stopPropagation()
+                    d3.select("#sectors").attr("data-open",false)
+                    
+                })
+            filters.select("#selectAll")
+                .style("display","none")
+                .on("click",function(e){
+                    
+                    e.stopPropagation()
+                    d3.select("#sectors").attr("data-open",false)
+                    const previousFilter = currentFilter
+                    currentFilter = "All stakeholders";
+                    
+                    draw(currentFilter,currentTimescale,null,previousFilter)
+                    d3.select(this).style("display","none")
+                })
+            
+            
+            
+
+            /***********/
+            draw(defaultFilter, defaultTimescale)
+            setTimeout(() => {
+                d3.select("#loading")
+                    .style("opacity",0)
+                    .style("pointer-events","none")
+            }, 300);
+        })
+        document.querySelector("body").addEventListener("click",function(){d3.select("#sectors").attr("data-open",false)})
+        d3.selectAll(".cn").html(cfg.clientName) 
+    </script>
+    
+</body>
+</html>

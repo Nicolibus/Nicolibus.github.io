@@ -1,0 +1,429 @@
+@font-face {
+    font-family: gilroy-body;
+    src: url(Gilroy%20Family/Gilroy-Light.otf);
+  }
+@font-face {
+    font-family: gilroy-medium;
+    src: url(Gilroy%20Family/Gilroy-Medium.otf);
+  }
+@font-face {
+    font-family: gilroy-thin;
+    src: url(Gilroy%20Family/Gilroy-Thin.otf);
+  }
+@font-face {
+    font-family: gilroy-light;
+    src: url(Gilroy%20Family/Gilroy-Light.otf);
+  }
+@font-face {
+    font-family: gilroy-extrabold;
+    src: url(Gilroy%20Family/Gilroy-ExtraBold.otf);
+  }
+@font-face {
+    font-family: gilroy-bold;
+    src: url(Gilroy%20Family/Gilroy-Bold.otf);
+  }
+
+:root{
+    /*....PALETTE....*/
+
+        /*main*/
+        --bright : #FFFFFF;
+        --light : #E6E6E6;
+        --dark : #000000;
+        
+        --light-contrast :#9c9c9c;
+        --light-contrast :#cdcdcd;
+
+        /*accent*/
+        --orange : #FF5400;
+        
+        /*colors*/
+        --violet-short : #E5CCFF;
+        --violet-short : #dcbbfd;
+        --violet-medium : #B166FF;
+        --violet-long : #7D00FF;
+
+        /*extra*/
+        --lime : #B0B812;
+        --moss : #00AB46;
+
+        --space-constant: 5vh;
+        --container-side: 85vh;
+    }
+    body{
+        font-family: gilroy-body;
+        background-color: var(--light);
+        
+        padding: 3vh;
+        display: flex;
+        justify-content: space-around;
+    }
+
+    #loading{
+        position: absolute;
+        /* background-color: var(--violet-long); */
+        background-color: var(--light);
+        width: 100vw;
+        height: 100vh;
+        transition: .5s ease-out;
+        top:0;
+        right:0;
+        z-index: 2;
+    }
+    
+    #loading p{
+        margin-top: 45vh;
+        font-size: 3.5vh;
+        font-family: gilroy-bold;
+        text-align: center;
+        color: var(--dark);
+        color: white;
+        filter: drop-shadow(0px 0px 15px #dedede);
+    }
+    #loading p span:nth-child(1){
+        opacity: 0;
+        animation: appear .2s ease-out .2s forwards;
+    }
+    #loading p span:nth-child(2){
+        opacity: 0;
+        animation: appear .2s ease-out .4s forwards;
+    }
+    #loading p span:last-child{
+        opacity: 0;
+        animation: appear .2s ease-out .6s forwards;
+    }
+
+    @keyframes appear{
+        
+        from{opacity: 0;}
+        to{opacity: 1;}
+    }
+
+    
+    #intro{
+        width: calc( 23% - var(--space-constant) );
+        /* padding-left: var(--space-constant); */
+        /* font-size: calc(14px + 0.5vh); */
+        font-size: 1vw;
+    }
+    #mainTitle{
+        font-size: 2.5vw;
+        font-family: gilroy-bold;
+        margin-bottom: 1vh;
+    }
+    #intro h3{
+        font-size: 1.4vw;
+        line-height: 1.9vw;
+        font-family: gilroy-Light;
+        margin: 0 0 5vh 0;
+        cursor:default;
+    }
+    #intro h3 span{
+        cursor: pointer;
+        font-family: gilroy-Medium;
+        transition: padding-bottom .4s ease-out;
+        
+        
+        
+    }
+    #intro h3 span:hover{
+        padding-bottom: 1px;
+    }
+    
+    /* #intro h3 span#short-term-legend[data-selected=true]{
+        
+        background-color: var(--violet-short);
+        border-radius: 5px 5px 0  0;
+        padding: 0px 3.5px;
+        color: var(--bright);
+    }
+    #intro h3 span#medium-term-legend[data-selected=true]{
+        
+        background-color: var(--violet-medium);
+        border-radius: 5px 5px 0  0;
+        padding: 0px 3.5px;
+        color: var(--bright);
+    }
+    #intro h3 span#long-term-legend[data-selected=true]{
+        background-color: var(--violet-long);
+        border-radius: 5px 5px 0  0;
+        padding: 0px 3.5px;
+
+        color: var(--light);
+    } */
+
+    #intro h3 span#short-term-legend{
+        /* background-color: var(--violet-short); */
+        border-bottom: 3px solid var(--violet-short);
+    }
+    #intro h3 span#medium-term-legend{
+        /* background-color: var(--violet-medium); */
+        border-bottom: 3px solid var(--violet-medium);
+    }
+    #intro h3 span#long-term-legend{
+        /* background-color: var(--violet-long); */
+        border-bottom: 3px solid var(--violet-long);
+    }
+    #intro p{
+        line-height: 1.4vw;
+    }
+    #intro b{
+        font-family: gilroy-medium;
+    }
+    #intro nobr{
+        background-color: white;
+        border-radius: 50px;
+        padding: 0 0.25vw;
+    }
+    svg{
+        width: 100%;
+        height: 100%;
+    }
+    #container, #filters{
+        border-radius: 50px;
+    }
+    #dashboard{
+        margin-top: 5vh;
+        align-self: flex-end;
+        display: flex;
+        justify-content: space-evenly;
+    }
+    #container{
+        width: var(--container-side);
+        height: var(--container-side);
+        background-color: var(--bright);
+    }
+    /* #container{
+        width: 95vh;
+        height: 95vh;
+        
+        background-color: var(--bright);
+    } */
+    .comet{
+        stroke-width: 0.1px;
+    }
+    .comet path{
+        stroke-dasharray: 0.25 0.25;
+        transition: opacity .4s ease-in;
+    }
+    .comet path.hide{
+        stroke-dasharray: 0.25 0.25;
+        transition: opacity .35s ease-out .05s;
+    }
+    .pointer{
+        transition: fill .2s ease-out;
+    }
+    .hide{
+        opacity: 0;
+    }
+    .flagTextY,.flagTextX{
+        font-size: 2px;
+        transform: translate(0,0.25px);
+        text-anchor: middle;
+        font-family: gilroy-medium;
+    }
+    #name{
+        position: absolute;
+        /* background-color: var(--moss); */
+        background-color: var(--bright);
+        background-color: var(--dark);
+        border-radius: 5px;
+        border-radius: 15px;
+        border-radius: 50px;
+        color: var(--dark);
+        color: var(--bright);
+        padding: 2px 15px;
+        padding: 8px 15px;
+        
+        pointer-events: none;
+        top: 7.5vh;
+        margin-left: 8vh;
+        /* left: 18vh; */
+        font-size: 2vh;
+        font-family: gilroy-medium;
+    }
+    
+    
+    /*
+    FILTERS
+    */
+    #filters{
+        border: 1px solid black;
+        width: calc( 25% - 2.5vw );
+        /* width: calc( 23% - 2.5vw ); */
+        height: calc(  100% - 2.5vw );
+        padding: 2.5vw;
+        /* height: 50vh; */
+    }
+    #filters h2{
+        font-family: gilroy-extrabold;
+        font-size: 2.75vh;
+        position: relative;
+        left: -2.5%;
+        margin-top: 0;
+    }
+    #timeScales{
+        margin: 15% 0 20% 0;
+    }
+    #timeScales text.timeScalePositionLabel{    
+        font-size: 5.25px;
+    }
+    
+    #timeScales svg{
+        /* background-color: red; */
+        width: 100%;
+        height: 5vh;
+        overflow: visible;
+    }
+    #timeScales .timeScalePosition{
+        cursor: pointer;
+    }
+    #timeScales #selector{
+        cursor: grab;
+    }
+
+    #sectors #selected{
+        display: flex;
+        justify-content: space-between;
+        padding: 5%;
+        border-radius: 50px;
+        border: 1px solid var(--dark);
+        cursor: pointer;
+    }
+    #sectors #list{
+        pointer-events: none;
+        opacity: 0;
+        /* display: flex; */
+        /* justify-content: space-between; */
+        background-color: var(--bright);
+        padding: 1%;
+        /* width: calc( 25% - 2.5vw - ( 1% * 2 ) ); */
+        /* width: calc( 25% - 15vw ); */
+        width: 10px;
+        
+        border-radius: 25px;
+        position: absolute;
+        
+        
+    }
+    #sectors #list #sectorsBody{
+        height: 0%;
+        overflow: hidden;
+        transition: height 1s ease-in-out;
+    }
+    #sectors #list{
+        /* display: flex; */
+        /* justify-content: space-between; */
+        background-color: var(--bright);
+        padding: 1%;
+        width: calc( 25% - (2.5vw * 2.5) - ( 1% * 2 ) );
+        margin-left: -1.25vw;
+        border-radius: 25px;
+        position: absolute;
+        
+    }
+
+    #sectors #header{
+        text-align: right;
+        cursor: pointer;
+    }
+    #sectors #footer{
+        padding: 2%;
+        margin: 2%;
+        bottom: 2%;
+    }
+    #sectors #footer #selectAll{
+        width: 90%;
+        background-color: var(--orange);
+        border-radius: 25px;
+        margin: 0 auto;
+        text-align: center;
+        padding:5%;
+        bottom: 0;
+        cursor: pointer;
+        color: var(--bright);
+        font-family: gilroy-medium;
+    }
+
+    #sectors[data-open=true] #list{
+        pointer-events: all;
+        opacity: 1;
+    }
+    #sectors[data-open=true] #sectorsBody{
+        height: 100%;
+    }
+    .stakeholder{
+        margin: 0.25vh 0.5vh;
+        padding: 1vh;
+        cursor: pointer;
+        border-radius: 50px;
+    }
+    .stakeholder:hover{
+        background-color: var(--light);
+    }
+
+    /*
+    AXIS
+    */
+
+    .barLabel{
+        font-size: 2.1px;
+        font-family: gilroy-medium;
+        fill: var(--dark);
+        fill: var(--light-contrast);
+    }
+    .barLabel#yComponentName{
+        transform-origin: 0 0;
+        transform-box: fill-box;
+        transform: rotate(270deg);
+    }
+    g#axis text{
+        
+        fill: var(--dark);
+        font-size: 2px;
+    }
+    /* g#axis .tick:nth-child(odd) text{
+        display: none;  
+    } */
+    g#axis .tick:last-child text, 
+    g#axis .tick:nth-child(2) text,
+    g#bottomLine .tick:last-child text, 
+    g#bottomLine .tick:nth-child(2) text{
+        font-family: gilroy-medium; 
+    }
+    
+    g#axis text, g#bottomLine text{
+        font-family: gilroy-thin;
+        fill: var(--dark);
+        font-size: 2px;
+    }
+    
+    g#axis path, g#bottomLine path {
+        display: none;
+    }
+    
+    g#axis line {
+        stroke-width: 0.1px;
+        stroke: var(--light)
+    }
+
+    .xAxis{
+        stroke: var(--dark);
+        stroke-width: 0.1px;
+    }
+    .xAxisGap{
+        stroke: var(--dark);
+        stroke-width: 0.15px;
+        stroke-dasharray: 0.15 0.5;
+        
+    }
+    g#axis .tick:nth-child(2) line, 
+    g#bottomLine .tick line{
+        display: none;  
+    }
+
+    g#bottomLine {
+        /* transform: translate(0,90px); */
+        font-size: 2px;
+    }
+    
