@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <title>Document</title>
+    <style>
+
+        circle {
+            fill: cadetblue;
+        }
+        line {
+            stroke: #ccc;
+        }
+        text {
+            text-anchor: middle;
+            font-family: "Helvetica Neue", Helvetica, sans-serif;
+            opacity: 0;
+            font-size: 16px;
+        }
+        text:hover{
+            opacity: 1;
+            cursor: none;
+        }
+        #searchGene{
+            position: fixed;
+            top:   10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" name="" id="searchGene">
+    <script>
+        d3.select("#searchGene").on("input",e=>{
+            
+            svg.selectAll("text")
+                .filter(d=>d.name.includes(e.target.value))
+                .attr("fill","black")
+                .attr("font-size","20px")
+            svg.selectAll("text")
+                .filter(d=>!d.name.includes(e.target.value))
+                .attr("fill","#838383")
+                .attr("font-size","20px")
+        })
+        const width = window.innerWidth, height = window.innerHeight
+        const svg = d3.select("body").append("svg")
+            .attr("width",width)
+            .attr("height",height)
+            .append("g")
+            
+            svg.append("g").classed("links",true)
+            svg.append("g").classed("nodes",true)
+
+        d3.tsv("./r12_hits_transpqtl_colocs.crossid.tsv").then(data=>{
+            data = data.filter(row => !["", 'NA'].includes(row.gene) && !["", 'NA'].includes(row.coding_gene) );
+            const links = [] 
+            data.forEach(d=>{
+                d.all_coloc_gene_beta_p_h4_src.split(";")
+                    .forEach(coloc=>{
+                        console.log(coloc)
+                        const [gene,beta,p,h4_coloc, source] = coloc.split(",")
+                        links.push( {"source":d.coding_gene, "target":gene})
+                     })
+                }
+            )
+            const nodes = links
+                .reduce((list,link)=>((list.concat(Object.values(link)))),[])
+                .filter((e,n,l)=>l.indexOf(e) === n)
+                .map(node=>({"name":node}))
+            console.log(nodes,links)
+            
+            // var nodes = [
+            //     {name: 'A'},
+            //     {name: 'B'},
+            //     {name: 'C'},
+            //     {name: 'D'},
+            //     {name: 'E'},
+            //     {name: 'F'},
+            //     {name: 'G'},
+            //     {name: 'H'},
+            // ]
+
+
+            // var links = [
+            //     {source: "A", target: "B"},
+            //     {source: "A", target: "C"},
+            //     {source: "A", target: "D"},
+            //     {source: "B", target: "F"},
+            //     {source: "B", target: "G"},
+            //     {source: "C", target: "D"},
+            //     {source: "C", target: "H"},
+            //     {source: "E", target: "F"},
+            //     {source: "E", target: "H"}
+            // ]
+
+            var simulation = d3.forceSimulation(nodes)
+                .force('charge', d3.forceManyBody().strength(-100))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('link', d3.forceLink().links(links).id(d=>d.name))
+                .on('tick', ticked);
+
+            function updateLinks() {
+                var u = d3.select('.links')
+                    .selectAll('line')
+                    .data(links)
+                    .join('line')
+                    .attr('x1', function(d) {
+                        return d.source.x
+                    })
+                    .attr('y1', function(d) {
+                        return d.source.y
+                    })
+                    .attr('x2', function(d) {
+                        return d.target.x
+                    })
+                    .attr('y2', function(d) {
+                        return d.target.y
+                    });
+            }
+
+            function updateNodes() {
+                u = d3.select('.nodes')
+                    .selectAll('text')
+                    .data(nodes)
+                    .join('text')
+                    .attr("fill","#838383")
+                    .text(function(d) {
+                        return d.name
+                    })
+                    .attr('x', function(d) {
+                        return d.x
+                    })
+                    .attr('y', function(d) {
+                        return d.y
+                    })
+                    .attr('dy', function(d) {
+                        return 5
+                    });
+            }
+
+            function ticked() {
+                updateLinks()
+                updateNodes()
+            }
+
+
+
+
+            let zoom = d3.zoom()
+	.scaleExtent([0.25, 10])
+	.on('zoom', handleZoom);
+
+    
+
+    function initZoom() {
+        d3.select('svg')
+            .call(zoom);
+    }
+
+    function handleZoom(e) {
+        d3.select('svg g')
+            .attr('transform', e.transform);
+    }
+
+    function zoomIn() {
+        d3.select('svg')
+            .transition()
+            .call(zoom.scaleBy, 2);
+    }
+
+    function zoomOut() {
+        d3.select('svg')
+            .transition()
+            .call(zoom.scaleBy, 0.5);
+    }
+
+    function resetZoom() {
+        d3.select('svg')
+            .transition()
+            .call(zoom.scaleTo, 1);
+    }
+
+    function center() {
+        d3.select('svg')
+            .transition()
+            .call(zoom.translateTo, 0.5 * width, 0.5 * height);
+    }
+
+    function panLeft() {
+        d3.select('svg')
+            .transition()
+            .call(zoom.translateBy, -50, 0);
+    }
+
+    function panRight() {
+        d3.select('svg')
+            .transition()
+            .call(zoom.translateBy, 50, 0);
+    }
+
+   
+    initZoom();
+
+
+        })
+    </script>
+</body>
+</html>
