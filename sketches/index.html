@@ -6,7 +6,10 @@
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <title>Document</title>
     <style>
-
+        body{
+            margin: 0;
+            padding: 0;
+        }
         circle {
             fill: cadetblue;
         }
@@ -16,193 +19,312 @@
         text {
             text-anchor: middle;
             font-family: "Helvetica Neue", Helvetica, sans-serif;
-            opacity: 0;
+            /* opacity: 0; */
             font-size: 16px;
+            cursor: pointer;
         }
-        text:hover{
+        /* text:hover{
             opacity: 1;
             cursor: none;
-        }
+        } */
         #searchGene{
             position: fixed;
             top:   10px;
             left: 10px;
         }
+        #go{
+            position: fixed;
+            top:   10px;
+            left: 160px;
+            display: none;
+        }
+        #info{
+            position: fixed;
+            right: 0;
+            width: 20vw;
+            height: calc(100vh - 2vw);
+            padding: 1vw;
+            display: none;
+            border-left: 1px solid rgb(200, 200, 200);
+        }
     </style>
 </head>
 <body>
-    <input type="text" name="" id="searchGene">
+    <input type="text" name="" id="searchGene" placeholder="gene name"> 
+    <button id="go">run query</button>
+    <div id="info"></div>
     <script>
-        d3.select("#searchGene").on("input",e=>{
-            
-            svg.selectAll("text")
-                .filter(d=>d.name.includes(e.target.value))
-                .attr("fill","black")
-                .attr("font-size","20px")
-            svg.selectAll("text")
-                .filter(d=>!d.name.includes(e.target.value))
-                .attr("fill","#838383")
-                .attr("font-size","20px")
-        })
+        const state = {
+            graph:{nodes:[],links:[]},
+            query:"",
+            fullGraph:[]
+        }
+
+        function deepCopy(el){
+            return JSON.parse(JSON.stringify(el))
+        }
+    //     <defs>
+    // <!-- A marker to be used as an arrowhead -->
+    // <marker
+    //   id="arrow"
+    //   viewBox="0 0 10 10"
+    //   refX="5"
+    //   refY="5"
+    //   markerWidth="6"
+    //   markerHeight="6"
+    //   orient="auto-start-reverse">
+    //   <path d="M 0 0 L 10 5 L 0 10 z" />
+    // </marker>
+        
         const width = window.innerWidth, height = window.innerHeight
-        const svg = d3.select("body").append("svg")
+        let svg = d3.select("body").append("svg")
             .attr("width",width)
             .attr("height",height)
-            .append("g")
+            
+
+        const defs = svg.append("defs")
+
+        svg = svg.append("g")
+        defs.append("marker")
+            .attr("id","arrow")
+            .attr("viewBox","0 0 10 10")
+            .attr("refX","20")
+            .attr("refY","5")
+            .attr("markerWidth","6")
+            .attr("markerHeight","6")
+            .attr("orient","auto-start-reverse")
+            .append("path").attr("d","M 0 0 L 10 5 L 0 10 z")
+        
             
             svg.append("g").classed("links",true)
             svg.append("g").classed("nodes",true)
 
+        
+            const updateGraph = (data,query) =>{
+                
+                // const subset = data.filter(row=> row.coding_gene === query || row.all_coloc_gene_beta_p_h4_src.split(",")[0] === query) 
+
+                // const nodes = subset.map( d => [...d.all_coloc_gene_beta_p_h4_src.split(";").map(coloc=>coloc.split(",")[0]), d.coding_gene] )
+                //     .flat()
+                //     .filter((e,n,l)=>l.indexOf(e) === n)
+                //     .map(node=>({"name":node, "wheel": data.filter(row=> row.coding_gene === node || row.all_coloc_gene_beta_p_h4_src.split(",")[0] === node)}))
+
+                
+                //const links = state.fullGraph.filter(link=>[link.source,link.target].every(l => nodes.map(node=>node.name).includes(l)))
+                const links = state.fullGraph.filter(link=>[link.source,link.target].some(l => l === query))
+                
+                
+                //console.log(" subset",subset,"\n nodes",nodes, "\n links",links)
+                const nodes = links
+                    .reduce((list,link)=>((list.concat(Object.values(link).slice(0,-1)))),[])
+                    .filter((e,n,l)=>l.indexOf(e) === n)
+                    .map(node=>({
+                        "name":node, 
+                        "wheel":deepCopy(state.fullGraph.filter(link=>[link.source,link.target].some(l => l === node)))
+                    }))
+                
+                
+                state.graph.nodes = state.graph.nodes.concat(nodes.filter(node => !state.graph.nodes.map(node=>node.name).includes(node.name)))
+                
+                state.graph.links = state.graph.links.concat(links.filter(link => !state.graph.links.map(l=>l.key).includes(link.key)))
+                
+                
+            }
+            
+
+
         d3.tsv("./r12_hits_transpqtl_colocs.crossid.tsv").then(data=>{
             data = data.filter(row => !["", 'NA'].includes(row.gene) && !["", 'NA'].includes(row.coding_gene) );
-            const links = [] 
-            data.forEach(d=>{
-                d.all_coloc_gene_beta_p_h4_src.split(";")
-                    .forEach(coloc=>{
-                        console.log(coloc)
-                        const [gene,beta,p,h4_coloc, source] = coloc.split(",")
-                        links.push( {"source":d.coding_gene, "target":gene})
-                     })
-                }
-            )
-            const nodes = links
-                .reduce((list,link)=>((list.concat(Object.values(link)))),[])
-                .filter((e,n,l)=>l.indexOf(e) === n)
-                .map(node=>({"name":node}))
-            console.log(nodes,links)
             
-            // var nodes = [
-            //     {name: 'A'},
-            //     {name: 'B'},
-            //     {name: 'C'},
-            //     {name: 'D'},
-            //     {name: 'E'},
-            //     {name: 'F'},
-            //     {name: 'G'},
-            //     {name: 'H'},
-            // ]
+            const fullGraph = []
+            data.forEach((d,n_row)=>{
+                    d.all_coloc_gene_beta_p_h4_src.split(";")
+                        .forEach((coloc,n_coloc)=>{
+                            const [gene,beta,p,h4_coloc, source] = coloc.split(",")
+                            fullGraph.push( {"source":d.coding_gene, "target":gene, "key":"key_"+n_row+"_"+n_coloc})
+                        })
+                    }
+                )
+            state.fullGraph = deepCopy(fullGraph)
 
+            function runQuery(query){
+            if(query !== ''){
+                    const {graph} = state
+                    updateGraph(data,query)
+                    setTimeout(() => {
+                        draw(graph)
+                    }, 300);
+                }
+            }
 
-            // var links = [
-            //     {source: "A", target: "B"},
-            //     {source: "A", target: "C"},
-            //     {source: "A", target: "D"},
-            //     {source: "B", target: "F"},
-            //     {source: "B", target: "G"},
-            //     {source: "C", target: "D"},
-            //     {source: "C", target: "H"},
-            //     {source: "E", target: "F"},
-            //     {source: "E", target: "H"}
-            // ]
+        const draw = (graph) => {
+            
+            const { nodes, links } = state.graph;
 
-            var simulation = d3.forceSimulation(nodes)
-                .force('charge', d3.forceManyBody().strength(-100))
+            // Create or update simulation
+            const simulation = d3.forceSimulation(nodes)
+                .force('charge', d3.forceManyBody().strength(-600))
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('link', d3.forceLink().links(links).id(d=>d.name))
+                .force('link', d3.forceLink().links(links).id(d => d.name))
                 .on('tick', ticked);
 
-            function updateLinks() {
-                var u = d3.select('.links')
-                    .selectAll('line')
-                    .data(links)
-                    .join('line')
-                    .attr('x1', function(d) {
-                        return d.source.x
-                    })
-                    .attr('y1', function(d) {
-                        return d.source.y
-                    })
-                    .attr('x2', function(d) {
-                        return d.target.x
-                    })
-                    .attr('y2', function(d) {
-                        return d.target.y
-                    });
-            }
-
-            function updateNodes() {
-                u = d3.select('.nodes')
-                    .selectAll('text')
-                    .data(nodes)
-                    .join('text')
-                    .attr("fill","#838383")
-                    .text(function(d) {
-                        return d.name
-                    })
-                    .attr('x', function(d) {
-                        return d.x
-                    })
-                    .attr('y', function(d) {
-                        return d.y
-                    })
-                    .attr('dy', function(d) {
-                        return 5
-                    });
-            }
-
             function ticked() {
-                updateLinks()
-                updateNodes()
+                updateLinks();
+                updateNodes();
+            }
+
+            // Update links
+            function updateLinks() {
+                
+                const u = d3.select('.links')
+                    .selectAll('.link')
+                    .data(links, d => d.key) // Use key for join
+                    .join('line')
+                    .classed("link", true)
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y)
+                    .attr("marker-end","url(#arrow)");
+            }
+
+            // Update nodes
+            function updateNodes() {
+                const u = d3.select('.nodes')
+                    .selectAll('text')
+                    .data(nodes, d => d.name) // Use name for join
+                    .join('text')
+                    .attr("fill", d=> {
+                        const nodesList = state.graph.nodes.map(node=>node.name).filter(nodeName=>d.name!==nodeName)
+                        
+                        
+                        
+                        const neighborhood = d.wheel.filter(link=> {
+                            return !nodesList.includes(link.source) && !nodesList.includes(link.target) && link.source!==link.target
+                        } )
+                        
+                        const ns = neighborhood.length 
+                        if(ns === 0) return "#a3a3a3"
+                        if(ns > 9){
+                            if(ns > 25){
+                                return "#ff7373"
+                            }
+                            return "#b383ee"
+                        }
+                        return "#8383ee"
+                    })
+                    .text(d => d.name)
+                    .attr('x', d => d.x)
+                    .attr('y', d => d.y)
+                    .attr('dy', 5)
+                    .on("click", function(e, d) {
+                        state.query = d.name;
+                        runQuery(d.name);
+                    })
+                    .on("mouseover",function(e, d){
+                        const neighbors = d.wheel.reduce((list,link)=>(list.push(link.source),list.push(link.target),list),[])
+                        const row = data.find(row=>row.coding_gene===d.name)
+                        console.log(row)
+                    })
+                    .call(drag(simulation));
+            }
+        }
+
+            d3.select("#searchGene").on("input",e=>{
+                state.query = e.target.value
+                d3.select("#go").style("display","block")
+            })
+            d3.select("#go").on("click",e=>{
+                const {query} = state
+                runQuery(query)
+            })
+            
+
+            
+            
+            let zoom = d3.zoom()
+            .scaleExtent([0.25, 10])
+            .on('zoom', handleZoom);
+
+
+
+            function initZoom() {
+                d3.select('svg')
+                    .call(zoom);
+            }
+
+            function handleZoom(e) {
+                d3.select('svg g')
+                    .attr('transform', e.transform);
+            }
+
+            function zoomIn() {
+                d3.select('svg')
+                    .transition()
+                    .call(zoom.scaleBy, 2);
+            }
+
+            function zoomOut() {
+                d3.select('svg')
+                    .transition()
+                    .call(zoom.scaleBy, 0.5);
+            }
+
+            function resetZoom() {
+                d3.select('svg')
+                    .transition()
+                    .call(zoom.scaleTo, 1);
+            }
+
+            function center() {
+                d3.select('svg')
+                    .transition()
+                    .call(zoom.translateTo, 0.5 * width, 0.5 * height);
+            }
+
+            function panLeft() {
+                d3.select('svg')
+                    .transition()
+                    .call(zoom.translateBy, -50, 0);
+            }
+
+            function panRight() {
+                d3.select('svg')
+                    .transition()
+                    .call(zoom.translateBy, 50, 0);
             }
 
 
+            initZoom();
+            
 
+            // Add drag behavior
+            function drag(simulation) {
+                function dragstarted(event, d) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart(); // Reheat the simulation
+                    d.fx = d.x;
+                    d.fy = d.y;
+                }
 
-            let zoom = d3.zoom()
-	.scaleExtent([0.25, 10])
-	.on('zoom', handleZoom);
+                function dragged(event, d) {
+                    d.fx = event.x;
+                    d.fy = event.y;
+                }
 
-    
+                function dragended(event, d) {
+                    if (!event.active) simulation.alphaTarget(0); // Cool down the simulation
+                    d.fx = null; // Allow node to move freely again
+                    d.fy = null;
+                }
 
-    function initZoom() {
-        d3.select('svg')
-            .call(zoom);
-    }
-
-    function handleZoom(e) {
-        d3.select('svg g')
-            .attr('transform', e.transform);
-    }
-
-    function zoomIn() {
-        d3.select('svg')
-            .transition()
-            .call(zoom.scaleBy, 2);
-    }
-
-    function zoomOut() {
-        d3.select('svg')
-            .transition()
-            .call(zoom.scaleBy, 0.5);
-    }
-
-    function resetZoom() {
-        d3.select('svg')
-            .transition()
-            .call(zoom.scaleTo, 1);
-    }
-
-    function center() {
-        d3.select('svg')
-            .transition()
-            .call(zoom.translateTo, 0.5 * width, 0.5 * height);
-    }
-
-    function panLeft() {
-        d3.select('svg')
-            .transition()
-            .call(zoom.translateBy, -50, 0);
-    }
-
-    function panRight() {
-        d3.select('svg')
-            .transition()
-            .call(zoom.translateBy, 50, 0);
-    }
-
-   
-    initZoom();
-
+                return d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended);
+            }
+            //const {graph,query} = state
+            //updateGraph(data,query)
+            //draw(graph)
 
         })
     </script>
