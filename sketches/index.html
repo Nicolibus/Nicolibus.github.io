@@ -111,17 +111,18 @@
 
                 
                 //const links = state.fullGraph.filter(link=>[link.source,link.target].every(l => nodes.map(node=>node.name).includes(l)))
-                const links = state.fullGraph.filter(link=>[link.source,link.target].some(l => l === query))
+                const wheel = state.fullGraph.filter(link=>[link.source,link.target].some(l => l === query))
                 
                 
                 //console.log(" subset",subset,"\n nodes",nodes, "\n links",links)
-                const nodes = links
+                const nodesNames = wheel
                     .reduce((list,link)=>((list.concat(Object.values(link).slice(0,-1)))),[])
                     .filter((e,n,l)=>l.indexOf(e) === n)
-                    .map(node=>({
+                const nodes = nodesNames.map(node=>({
                         "name":node, 
                         "wheel":deepCopy(state.fullGraph.filter(link=>[link.source,link.target].some(l => l === node)))
                     }))
+                const links = state.fullGraph.filter(link=>[link.source,link.target].every(l => nodesNames.includes(l)))
                 
                 
                 state.graph.nodes = state.graph.nodes.concat(nodes.filter(node => !state.graph.nodes.map(node=>node.name).includes(node.name)))
@@ -134,6 +135,7 @@
 
 
         d3.tsv("./r12_hits_transpqtl_colocs.crossid.tsv").then(data=>{
+            
             data = data.filter(row => !["", 'NA'].includes(row.gene) && !["", 'NA'].includes(row.coding_gene) );
             
             const fullGraph = []
@@ -163,7 +165,7 @@
 
             // Create or update simulation
             const simulation = d3.forceSimulation(nodes)
-                .force('charge', d3.forceManyBody().strength(-600))
+                .force('charge', d3.forceManyBody().strength(-500))
                 .force('center', d3.forceCenter(width / 2, height / 2))
                 .force('link', d3.forceLink().links(links).id(d => d.name))
                 .on('tick', ticked);
