@@ -14,7 +14,7 @@
             fill: cadetblue;
         }
         line {
-            stroke: #ccc;
+            opacity: 0.75;
         }
         text {
             text-anchor: middle;
@@ -41,11 +41,39 @@
         #info{
             position: fixed;
             right: 0;
-            width: 20vw;
+            width: 22vw;
+            padding-left: 2vw;
             height: calc(100vh - 2vw);
-            padding: 1vw;
-            display: none;
-            border-left: 1px solid rgb(200, 200, 200);
+            font-family: sans-serif;
+            color: blue;
+            font-size: 10px;
+            overflow-y: scroll;
+            overflow-x: visible;
+            
+            /* padding: 1vw; */
+            /* display: none; */
+            /* border-left: 1px solid rgb(200, 200, 200); */
+        }
+        #info div{
+            margin-bottom: 5px;
+            border-bottom: 1px solid blue;
+
+        }
+        #info div span{
+            margin-right: 15px;
+            
+        }
+        .name{
+            /* position: fixed; */
+            position:fixed;
+            transform: rotate(270deg) ;
+            transform-origin: 0 0;
+            transform-box: fill-box;
+            left: 77vw;
+            top: 30px;
+            z-index: 9;
+            font-size: 14;
+            
         }
     </style>
 </head>
@@ -57,7 +85,9 @@
         const state = {
             graph:{nodes:[],links:[]},
             query:"",
-            fullGraph:[]
+            fullGraph:[],
+            beta:{map:""},
+            phenoDict:{}
         }
 
         function deepCopy(el){
@@ -86,12 +116,23 @@
 
         svg = svg.append("g")
         defs.append("marker")
-            .attr("id","arrow")
+            .attr("id","arrowPositive")
             .attr("viewBox","0 0 10 10")
-            .attr("refX","20")
+            .attr("refX","50")
             .attr("refY","5")
             .attr("markerWidth","6")
             .attr("markerHeight","6")
+            .attr("fill","magenta")
+            .attr("orient","auto-start-reverse")
+            .append("path").attr("d","M 0 0 L 10 5 L 0 10 z")
+        defs.append("marker")
+            .attr("id","arrowNegative")
+            .attr("viewBox","0 0 10 10")
+            .attr("refX","50")
+            .attr("refY","5")
+            .attr("markerWidth","6")
+            .attr("markerHeight","6")
+            .attr("fill","#2bfcdd")
             .attr("orient","auto-start-reverse")
             .append("path").attr("d","M 0 0 L 10 5 L 0 10 z")
         
@@ -102,31 +143,34 @@
         
             const updateGraph = (data,query) =>{
                 
-                // const subset = data.filter(row=> row.coding_gene === query || row.all_coloc_gene_beta_p_h4_src.split(",")[0] === query) 
+                //const subset = data.filter(row=> row.coding_gene === query || row.all_coloc_gene_beta_p_h4_src.split(",")[0] === query) 
+                
 
                 // const nodes = subset.map( d => [...d.all_coloc_gene_beta_p_h4_src.split(";").map(coloc=>coloc.split(",")[0]), d.coding_gene] )
                 //     .flat()
                 //     .filter((e,n,l)=>l.indexOf(e) === n)
                 //     .map(node=>({"name":node, "wheel": data.filter(row=> row.coding_gene === node || row.all_coloc_gene_beta_p_h4_src.split(",")[0] === node)}))
 
-                
+                console.log(state.fullGraph.filter(link=>[link.source,link.target].some(l => l === query)))
                 //const links = state.fullGraph.filter(link=>[link.source,link.target].every(l => nodes.map(node=>node.name).includes(l)))
                 const wheel = state.fullGraph.filter(link=>[link.source,link.target].some(l => l === query))
                 
                 
                 //console.log(" subset",subset,"\n nodes",nodes, "\n links",links)
                 const nodesNames = wheel
-                    .reduce((list,link)=>((list.concat(Object.values(link).slice(0,-1)))),[])
+                    .reduce((list,link)=>((list.concat(Object.values(link).slice(0,2)))),[])
                     .filter((e,n,l)=>l.indexOf(e) === n)
+                    console.log(data.find(row=>row.coding_gene==="PCSK9").ld_pruned_phenos)
                 const nodes = nodesNames.map(node=>({
                         "name":node, 
-                        "wheel":deepCopy(state.fullGraph.filter(link=>[link.source,link.target].some(l => l === node)))
+                        "wheel":deepCopy(state.fullGraph.filter(link=>[link.source,link.target].some(l => l === node))),
+                        "phenoList":state.phenoDict[node] || []
+                            
                     }))
-                const links = state.fullGraph.filter(link=>[link.source,link.target].every(l => nodesNames.includes(l)))
+                const links = deepCopy(state.fullGraph.filter(link=>[link.source,link.target].every(l => nodesNames.includes(l))))
                 
                 
-                state.graph.nodes = state.graph.nodes.concat(nodes.filter(node => !state.graph.nodes.map(node=>node.name).includes(node.name)))
-                
+                state.graph.nodes = state.graph.nodes.concat(nodes.filter(node => !state.graph.nodes.map(fgNode=>fgNode.name).includes(node.name)))
                 state.graph.links = state.graph.links.concat(links.filter(link => !state.graph.links.map(l=>l.key).includes(link.key)))
                 
                 
@@ -135,7 +179,14 @@
 
 
         d3.tsv("./r12_hits_transpqtl_colocs.crossid.tsv").then(data=>{
-            
+            console.log(data)
+            data.forEach(d=>(
+                state.phenoDict[d.coding_gene]=d.ld_pruned_phenos.split(",")
+                            .map(pheno=>{
+                                const [name,locus,pVal] = pheno.split(";");
+                                return {name:name,locus:locus,pVal:pVal}
+                            })
+            ))
             data = data.filter(row => !["", 'NA'].includes(row.gene) && !["", 'NA'].includes(row.coding_gene) );
             
             const fullGraph = []
@@ -143,11 +194,12 @@
                     d.all_coloc_gene_beta_p_h4_src.split(";")
                         .forEach((coloc,n_coloc)=>{
                             const [gene,beta,p,h4_coloc, source] = coloc.split(",")
-                            fullGraph.push( {"source":d.coding_gene, "target":gene, "key":"key_"+n_row+"_"+n_coloc})
+                            fullGraph.push( {"source":d.coding_gene, "target":gene, "key":"key_"+n_row+"_"+n_coloc, "pVal":p, "beta":beta, "h4":h4_coloc, "impOrChip":source})
                         })
                     }
                 )
             state.fullGraph = deepCopy(fullGraph)
+            state.beta.scale = d3.scaleLinear(d3.extent(fullGraph,d=>+d.beta), [0.25,4])
 
             function runQuery(query){
             if(query !== ''){
@@ -165,7 +217,7 @@
 
             // Create or update simulation
             const simulation = d3.forceSimulation(nodes)
-                .force('charge', d3.forceManyBody().strength(-500))
+                .force('charge', d3.forceManyBody().strength(-2000))
                 .force('center', d3.forceCenter(width / 2, height / 2))
                 .force('link', d3.forceLink().links(links).id(d => d.name))
                 .on('tick', ticked);
@@ -187,48 +239,142 @@
                     .attr('y1', d => d.source.y)
                     .attr('x2', d => d.target.x)
                     .attr('y2', d => d.target.y)
-                    .attr("marker-end","url(#arrow)");
+                    .attr("marker-end",d=>`url(#arrow${ +d.beta > 0?"Positive":"Negative"})`)
+                    .attr("stroke",d=>+d.beta < 0 ? "#2bfcdd" : "magenta" )
+                    .attr("stroke-width",d=>state.beta.scale(+d.beta) );
             }
 
             // Update nodes
             function updateNodes() {
+                
                 const u = d3.select('.nodes')
-                    .selectAll('text')
+                    .selectAll('.node')
                     .data(nodes, d => d.name) // Use name for join
-                    .join('text')
-                    .attr("fill", d=> {
+                    .join(
+                    enter=>{
+                        const geometry = enter.append("g")
+                            .classed("node",true)
+                            .attr("transform",d=>`translate(${d.x},${d.y})`)
+                            .on("click", function(e, d) {
+                                console.log("clicked")
+                                state.query = d.name;
+                                runQuery(d.name);
+                            })
+                            .call(drag(simulation));
+                        geometry.append("text")
+                        .attr("fill", d=> {
                         const nodesList = state.graph.nodes.map(node=>node.name).filter(nodeName=>d.name!==nodeName)
-                        
-                        
-                        
                         const neighborhood = d.wheel.filter(link=> {
                             return !nodesList.includes(link.source) && !nodesList.includes(link.target) && link.source!==link.target
                         } )
                         
                         const ns = neighborhood.length 
-                        if(ns === 0) return "#a3a3a3"
+                        if(ns === 0) return "#c3c3d3"
                         if(ns > 9){
                             if(ns > 25){
-                                return "#ff7373"
+                                return "#0000dd"
                             }
-                            return "#b383ee"
+                            return "#0000ff"
                         }
-                        return "#8383ee"
-                    })
-                    .text(d => d.name)
-                    .attr('x', d => d.x)
-                    .attr('y', d => d.y)
-                    .attr('dy', 5)
-                    .on("click", function(e, d) {
-                        state.query = d.name;
-                        runQuery(d.name);
-                    })
-                    .on("mouseover",function(e, d){
-                        const neighbors = d.wheel.reduce((list,link)=>(list.push(link.source),list.push(link.target),list),[])
-                        const row = data.find(row=>row.coding_gene===d.name)
-                        console.log(row)
-                    })
-                    .call(drag(simulation));
+                        return "#3333ff"
+                        })
+                        .attr("font-weight",d=> {
+                            const nodesList = state.graph.nodes.map(node=>node.name).filter(nodeName=>d.name!==nodeName)
+                            const neighborhood = d.wheel.filter(link=> {
+                                return !nodesList.includes(link.source) && !nodesList.includes(link.target) && link.source!==link.target
+                            } )
+                            const ns = neighborhood.length 
+                            
+                            if(ns === 0) return "normal"
+                            if(ns > 9)return "bold"
+                            
+                            return "normal"
+                            
+                        })
+                        .text(d => d.name)
+                        .attr('dy', 5)
+                        
+
+                        geometry.append("rect")
+                            .attr("width",24)
+                            .attr("height",16)
+                            .attr("rx",3)
+                            .attr("x",15)
+                            .attr("y",7)
+                            .attr("fill","white")
+                            .attr("stroke-width","1px")
+                            .attr("stroke","gray")
+                            .style("display",d=>d.phenoList?.length>0?"block":"none")
+                        geometry.append("text")
+                        .attr("x",15 +12)
+                            .attr("y",6 + 14)
+                            .attr("text-anchor","center")
+                            .attr("fill","gray")
+                            .text(d=>d.phenoList.length)
+                            .style("display",d=>d.phenoList?.length>0?"block":"none")
+                            .on("mouseover",(e,d)=>{
+                                console.log(d.phenoList)
+                                d3.select("#info").selectAll("*").remove()
+                                d3.select("#info").append("p").html(d.name).classed("name",true)
+                                const line = d3.select("#info").selectAll("div")
+                                .data(d.phenoList)
+                                .join("div")
+                                line.append("br")
+                                line.append("span")
+                                    .style("font-weight","bold")
+                                    .html(d=>d.name)
+                                line.append("br")
+                                line.append("span")
+                                    .html(d=>d.locus)
+                                line.append("span")
+                                    .html(d=>d.pVal)
+                            })
+                            
+                            
+                    // .on("mouseover",function(e, d){
+                    //     const neighbors = d.wheel.reduce((list,link)=>(list.push(link.source),list.push(link.target),list),[])
+                    //     const row = data.find(row=>row.coding_gene===d.name)
+                    //     console.log(row)
+                    // })
+                    
+                },
+                update=>{
+                        const geometry = update
+                        .attr("transform",d=>`translate(${d.x},${d.y})`)
+                        geometry.select("text")
+                        .attr("fill", d=> {
+                        const nodesList = state.graph.nodes.map(node=>node.name).filter(nodeName=>d.name!==nodeName)
+                        const neighborhood = d.wheel.filter(link=> {
+                            return !nodesList.includes(link.source) && !nodesList.includes(link.target) && link.source!==link.target
+                        } )
+                        
+                        const ns = neighborhood.length 
+                        if(ns === 0) return "#c3c3d3"
+                        if(ns > 9){
+                            if(ns > 25){
+                                return "#0000dd"
+                            }
+                            return "#0000ff"
+                        }
+                        return "#3333ff"
+                        })
+                        .attr("font-weight",d=> {
+                            const nodesList = state.graph.nodes.map(node=>node.name).filter(nodeName=>d.name!==nodeName)
+                            const neighborhood = d.wheel.filter(link=> {
+                                return !nodesList.includes(link.source) && !nodesList.includes(link.target) && link.source!==link.target
+                            } )
+                            const ns = neighborhood.length 
+                            
+                            if(ns === 0) return "normal"
+                            if(ns > 9)return "bold"
+                            
+                            return "normal"
+                            
+                        })
+                    return geometry       
+                }
+            )
+                    
             }
         }
 
@@ -303,7 +449,7 @@
             // Add drag behavior
             function drag(simulation) {
                 function dragstarted(event, d) {
-                    if (!event.active) simulation.alphaTarget(0.3).restart(); // Reheat the simulation
+                    if (!event.active)  draw(state.graph)//simulation.alphaTarget(0.3).restart(); // Reheat the simulation
                     d.fx = d.x;
                     d.fy = d.y;
                 }
