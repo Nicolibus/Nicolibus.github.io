@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./d3.js"></script>
+    <title>Document</title>
+    <style>
+        body{
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .horse{
+            background-image: url("./assets/jump.png");
+            
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const levlen = 5
+        let difficulty = 4
+        let score = 0
+        const w = window.innerWidth, h = window.innerHeight;
+        const game = {}
+        const horse = {
+            h:100,
+            w:100,
+        }
+        const obstacle = {
+            h:70,
+            w:20,
+        }
+        const svg = d3.select("body").append("svg")
+            .attr("width", w)
+            .attr("height",h)
+        
+        const horseGeometry = svg.append("image")
+            // .classed("image",true)
+            .attr("href","./assets/jump.png")
+            .attr("x",w/2 - (horse.w/2))
+            .attr("y",h-horse.h)
+            .attr("width",horse.w)
+            .attr("height",horse.h)
+        const obstacleGeometry = svg.append("rect")
+            .attr("x",w)
+            .attr("y",h-obstacle.h)
+            .attr("width",obstacle.w)
+            .attr("height",obstacle.h)
+            
+        let jumping = false;
+        const youWin = ()=>{
+            svg.selectAll("*").remove()
+            svg.append("text")
+                .text("YOU WIIIIIIIIN")
+                .attr("x",w/6)
+                .attr("y",h/2)
+                .attr("font-size",100)
+            game.state = "game_over"
+        }
+        const progress = ()=>{
+            score++
+            if(score%levlen === 0) difficulty--
+            if(difficulty === 0) youWin()
+        }
+        const jump = ()=>{
+            jumping = true
+            horseGeometry
+
+                .transition()
+                //.attr("transform",`translate(0,${-horse.h})`)
+                .attr("y",h-(horse.h*2))
+                .transition()
+                .duration(500)
+                .attr("y",h-horse.h)  
+        }
+        const shift = ()=>{
+            obstacleGeometry
+                .attr("x",w)
+                .transition()
+                .ease(d3.easeLinear)
+                .duration( w * difficulty / 2 )
+                .attr("x",-20)
+                .on("end",()=>progress())
+                
+        }
+        const gameOver = ()=>{
+            svg.selectAll("*").remove()
+            svg.append("text")
+                .text("GAME OVER")
+                .attr("x",w/6)
+                .attr("y",h/2)
+                .attr("font-size",100)
+            game.state = "game_over"
+        }
+        
+        document.addEventListener("keydown",(e)=>{
+            if(e.code === "Space" && !jumping){
+                jump()
+                setTimeout(()=>jumping=false,500)
+            }else if(game.state==="game_over" && e.code === "Enter"){
+                console.log(e)
+                window.location.reload()
+            }
+        })
+
+        //game 
+
+        setInterval(() => {
+            shift()
+        }, w*difficulty);
+
+        setInterval(() => {
+            const horsePosition = horseGeometry.node().getBBox()
+            
+            const yHorse = horsePosition.y
+            
+
+            const obstaclePosition = obstacleGeometry.node().getBBox()
+            const xObstacle = obstaclePosition.x
+            const yObstacle = obstaclePosition.y
+            const widthObstacle = obstaclePosition.width
+
+            if(xObstacle <= (w/2+(horse.w/2)) && xObstacle >= (w/2-(horse.w/2)) ){
+                
+                if( yHorse+horse.h > yObstacle-10 ){
+                    gameOver()
+                }else{
+                    
+                    console.log("safe")
+                    //if(score % levlen === 0)
+                }
+            }
+
+
+            
+        }, 10);
+    </script>
+    
+</body>
+</html>
