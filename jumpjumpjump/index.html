@@ -30,7 +30,8 @@
         const levlen = 2
         let difficulty = 4
         let score = 0
-        const w = window.innerWidth, h = window.innerHeight;
+        const w = window.innerWidth, 
+              h = isMobile? (window.innerHeight/10)*8 :window.innerHeight;
         const game = {}
         const horse = {
             h:100,
