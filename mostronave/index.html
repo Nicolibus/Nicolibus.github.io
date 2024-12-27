@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <title>Document</title>
+    <style>
+        :root{
+            --button-size : 100px;
+        }
+        body{
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(#e66465, #131746);
+            overflow: hidden;
+            margin: 0;
+            transition: background 1s ease-out 2s;
+        }
+        #me{
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 0, 0, 0); 
+            position: absolute;
+            bottom: 10px;
+            transition: .1s linear;
+            background-image: url("./spaceship.png");
+            background-position: center;
+            background-size: 100%;
+            z-index: 1;
+        }
+        .bullet{
+            width: 5px;
+            height: 5px;
+            background-color: rgb(255, 238, 0); 
+            position: absolute;
+            bottom: 11px;
+            border-radius: 100px;
+            z-index: 1;
+        }
+        .enemy{
+            width: 100px;
+            height: 100px;
+            background-color: rgba(157, 0, 255, 0); 
+            position: absolute;
+            bottom: 11px;
+            background-position: center;
+            background-size: 100%;
+            z-index: 1;
+            
+        }
+        #lost{
+            width: 100%;
+            height: 100%;
+            background-color: #131746;
+            z-index: 2;
+            position: fixed;
+            display: none;
+        }
+        #lost span{
+            color: rgb(0, 255, 47);
+            font-family: monospace;
+            position: fixed;
+            font-size: 100px;
+            margin-top: 50vh;
+            margin-left: calc(50% - 250px);
+            
+        }
+        #lost span:nth-child(2){
+            display: block;
+            background-color: rgb(0, 255, 47);
+            color: black;
+            margin-top: 75vh;
+            font-size: 50px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        #lost span:nth-child(2)::before{
+            content: "try again";
+            pointer-events: none;
+        }
+        #count{
+            position: fixed;
+            top: 10px;
+            left: 5px;
+            font-family: monospace;
+            text-align: center;
+            font-size: 20px;
+        }
+        #goLeft,
+        #goRight,
+        #shootBtn{
+            position: absolute;
+            bottom: 0;
+            display: none;
+        }
+        #goLeft{
+            width: var(--button-size);
+            height: var(--button-size);
+            
+            left: 0;
+            background-image: url(./left.png);
+            background-position: center;
+            background-size: cover;
+        }
+        #goRight{
+            width: var(--button-size);
+            height: var(--button-size);
+            
+            right: 0;
+            background-image: url(./right.png);
+            background-position: center;
+            background-size: cover;
+        }
+        #shootBtn{
+            width: var(--button-size);
+            height: var(--button-size);
+            
+            right: 0;
+            bottom: var(--button-size);
+            
+            background-image: url(./shoot.png);
+            background-position: center;
+            background-size: cover;
+        }
+        @media only screen and (max-width: 600px) {
+            #goLeft,
+            #goRight,
+            #shootBtn{
+                display: block;
+            }
+        }    
+</style>
+</head>
+<body>
+    <div id="lost">
+        <span>GAME OVER</span>
+        <span onclick="again()"></span>
+    </div>
+    <div id="me" style="left: 50%;"></div>
+    <div id="count">5 ammo</div>
+    <div id="goLeft"></div>
+    <div id="shootBtn"></div>
+    <div id="goRight"></div>
+    <script>
+        let time = 0;
+        let left, right = false
+        let speed = 10;
+        let currentPosition = 0
+        let enemyWidth = 100
+        let bulletCount = 0
+        let hatchingTime = 50
+        let ammo = 5
+        let chargingTime = 1000
+        let stage = 1
+        const monsters = ["alienAlakay","scorregbam","scuorspezzat"]
+        const worldWidth = window.innerWidth, worldHeight = window.innerHeight - 10
+        // addEventListener("keydup",e=>{})
+        const again = () => {
+            window.location.reload()
+        }
+        const shoot = (p)=>{
+            if(bulletCount < ammo ){
+                bulletCount++
+                d3.select("body").append("div").classed("bullet",true)
+                  .style("left",(p+15)+"px")
+                  .style("bottom","70px")
+                d3.select("#count").html(bulletCount === ammo? "SHOOT TO LOAD" :`${ammo-bulletCount } ammo`)
+            }else{
+                d3.select("#count").html("LOADING")
+                setTimeout(() => {
+                    bulletCount = 0
+                    d3.select("#count").html("5 ammo")
+                }, chargingTime);
+            }
+
+        }
+        const spawn = ()=>{
+            const monster = monsters[Math.floor(Math.random()*monsters.length)];
+            d3.select("body").append("div").classed("enemy",true)
+            .style("left",(Math.random() * (worldWidth-enemyWidth))+"px")
+            .style("top","30px")
+            .style("width",enemyWidth+"px")
+            .style("height",enemyWidth+"px")
+            .style("background-image", `url("./${monster}.png")`)
+        }
+        const kill = (bullet,enemy) => {
+            d3.select(enemy).remove()
+            d3.select(bullet).remove()
+        }
+        const youLose = () => {
+            document.getElementById("lost").style.display = "block"
+        }
+        //move computer
+        addEventListener("keydown",e=>{
+            left = e.key === "ArrowLeft" ?  true : false;
+            right = e.key === "ArrowRight" ?  true : false;
+            e.key === " " && shoot(currentPosition)
+        })
+        //move mobile
+        document.getElementById("goLeft").addEventListener("click",e=>{
+            left = true;
+            right = false;
+        })
+        document.getElementById("goRight").addEventListener("click",e=>{
+            right = true;
+            left = false;
+        })
+        document.getElementById("shootBtn").addEventListener("click",e=>{
+            shoot(currentPosition)
+        });
+        setInterval(() => {
+            time++;
+            const me = document.getElementById("me");
+            const {x,y} = me.getBoundingClientRect()
+            currentPosition = x + 5
+            //move
+            if(left){
+                right = false
+                  me.style.left = (x+10) > speed && `${x - (speed + 10)}px`
+                // console.log("left", speed, x)
+            }
+            if(right){
+                left = false
+                me.style.left =  (x < worldWidth - 60) && `${x + (speed + 10)}px`
+                //console.log("RIGHT", speed, x)
+            }
+            
+            [...document.getElementsByClassName("bullet")].forEach(bullet => {
+                const bulletY = +bullet.style.bottom.slice(0,-2);
+                const bulletX = +bullet.style.left.slice(0,-2);
+                
+
+                [...document.getElementsByClassName("enemy")].forEach(enemy => {
+                    const enemyY = +enemy.style.top.slice(0,-2)
+                    const enemyX = +enemy.style.left.slice(0,-2)
+                    
+                    //if(bulletX < enemyX + enemyWidth && bulletX >= enemyX && bulletY >= enemyY + enemyWidth  ) kill(enemy)
+                    
+                    //if( bulletX < (enemyX + enemyWidth) && bulletX >= enemyX && bulletY >= (enemyY + enemyWidth ) ) kill(enemy)
+                    console.log(bulletY)
+                    if(bulletX < (enemyX + enemyWidth) && bulletX >= enemyX && bulletY >= (worldHeight-enemyY - enemyWidth ) ) kill(bullet,enemy) 
+                    if(bulletY> worldHeight) d3.select(bullet).remove()
+                })
+                bullet.style.bottom = `${bulletY + speed}px`;
+            });
+            [...document.getElementsByClassName("enemy")].forEach(enemy => {
+                const enemyY = +enemy.style.top.slice(0,-2)
+                
+                enemy.style.top = `${enemyY + speed}px`;
+                enemyY > worldHeight-enemyWidth && youLose()
+            });
+            
+            time % hatchingTime === 0 && spawn()
+            if(time > 500 && time < 1000){
+                stage = 2
+                hatchingTime = 25
+                document.body.style.background = "linear-gradient(#4bca19, #07081b)"
+            }else if(time > 1000){
+                stage = 3
+                hatchingTime = 10
+                chargingTime = 500
+                ammo = 20
+                document.body.style.background = "linear-gradient(#aa0000, #010103)"
+            }
+        }, 100);
+    </script>
+    
+</body>
+</html>
