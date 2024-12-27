@@ -10,10 +10,17 @@
     <style>
         body{
             font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
         }
         .horse{
             background-image: url("./assets/jump.png");
             
+            background-size: cover;
+        }
+        svg{
+            background-image: url("./assets/lv1.jpeg");
+            background-repeat: no-repeat;
             background-size: cover;
         }
     </style>
@@ -44,7 +51,14 @@
         const svg = d3.select("body").append("svg")
             .attr("width", w)
             .attr("height",h)
-        
+        const scoreCount = svg.append("text")
+            .attr("x",w/2)
+            .attr("y",h/3)
+            .attr("font-size",200)
+            .style("font-weight",800)
+            .attr("fill","white")
+            .attr("opacity",0.5)
+            .text("0") 
         const horseGeometry = svg.append("image")
             // .classed("image",true)
             .attr("href","./assets/jump.png")
@@ -70,6 +84,7 @@
         }
         const progress = ()=>{
             score++
+            scoreCount.text(score)
             if(score%levlen === 0) difficulty--
             if(difficulty === 0) youWin()
         }
