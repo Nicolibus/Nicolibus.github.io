@@ -94,9 +94,9 @@
             return array
         }
 
-        d3.csv("sauna_01.csv").then(data=>{
-            data = shuffle(data)
-            console.log(shuffle([1,2,3]))
+        d3.csv("sauna_01.csv").then(data => {
+            //data = shuffle(data)
+            //console.log(data)
             const listItems = d3.select("body")
                 .append("div")
                 .classed("list",true)
