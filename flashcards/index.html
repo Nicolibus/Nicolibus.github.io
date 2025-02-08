@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="./tts.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <style>
         body{
@@ -74,6 +75,7 @@
 </head>
 <body>
     <div id="training"> Start </div>
+    <div id="voice"> voice </div>
     <script>
         let training = false
 
@@ -124,6 +126,7 @@
                 
 
 
+                d3.select("#voice").on("click",voice)
                 d3.select("#training")
                 .on("click",function(){
                     training = !training
@@ -135,7 +138,6 @@
                         this.innerHTML = "Start"
                        d3.selectAll(".answer")
                        .classed("hidden",false) 
-
                     }
                 })
 
