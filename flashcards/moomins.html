@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./tts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <style>
+        body{
+            background-color: rgb(197, 245, 235);
+            font-family: sans-serif;
+            color: rgb(28, 118, 208);
+            font-size: 4vw;
+            
+        }
+        #training{
+            position: fixed;
+            padding: 3vw 7vw;
+            border-radius: 30px;
+            font-size: 6vw;
+            bottom: 3vh;
+            right: 3vw;
+            z-index: 2;
+            background-color: rgb(28, 118, 208);
+            filter: drop-shadow(0 0 10px rgba(9, 174, 245, 0.809));
+            color: rgb(229, 248, 255);
+        }
+        .list{
+            display: flex;
+            flex-flow: row wrap;
+            
+            align-items: flex-start;
+            width: 80%;
+            margin: 0 auto;
+            background-color: rgb(230, 244, 242);
+            border-radius: 20px;
+            filter: drop-shadow(0 0 10px rgba(28, 118, 208, 0.292));
+            padding: 20px;
+            margin-bottom: 25vw;
+
+        }
+        .listItem{
+            background-color: rgb(245, 252, 251);
+            filter: drop-shadow(0 0 5px rgba(28, 118, 208, 0.17));
+            padding: 2.5vw 3.5vw;
+            border-radius: 10px;
+            margin: 5px;
+            display: flex;
+            white-space: nowrap;
+
+        }
+        .listItem p{
+            pointer-events: none;
+            line-height: 0;
+            
+        }
+        .listItem p:nth-child(2){
+            
+            margin-left: 15px;
+            color: rgb(128, 160, 193);
+        }
+        .hidden{
+            opacity: 0;
+        }
+        .hint{
+            color: rgb(245, 252, 251) !important;
+            opacity: 1 ;
+        }
+        .hint::first-letter{
+            color: rgb(0, 125, 221);
+            opacity: 1 ;
+        }
+    </style>
+</head>
+<body>
+    <div id="training"> Start </div>
+    <!-- <div id="voice"> voice </div> -->
+    
+    <script>
+        
+        let training = false
+
+        function shuffle(array) {
+            let currentIndex = array.length;
+
+            // While there remain elements to shuffle...
+            while (currentIndex != 0) {
+
+                // Pick a remaining element...
+                let randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+
+                // And swap it with the current element.
+                [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+            }
+            return array
+        }
+
+        d3.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRYoQbLaqlRjLVrA-0jNN4aynqbSjgLjKGaWZgA6eGsYiSkkuSYrxKX4EQcOBujqXlAX08IhHOez0gm/pub?output=csv").then(data => {
+            //data = shuffle(data)
+            //console.log(data)
+            const listItems = d3.select("body")
+                .append("div")
+                .classed("list",true)
+                .selectAll(".listItem")
+                .data(data)
+                .join("div")
+                .classed("listItem",true)
+                .on("click",function(e,d){
+                    if(training){
+                        const answer = d3.select(this).select(".answer")
+                        answer.classed("hint") 
+                            ? answer.classed("hint",false).classed("hidden",false)
+                            : answer.classed("hint",true)
+
+                    }
+                })
+            listItems
+                .append("p")
+                .text(d=>d.F)
+            listItems
+                .append("p")
+                .text(d=>d.E)
+                .classed("answer",true)
+
+                
+
+
+                //d3.select("#voice").on("click",voice)
+                d3.select("#training")
+                .on("click",function(){
+                    training = !training
+                    if(training){
+                        this.innerHTML = "Stop"
+                       d3.selectAll(".answer")
+                       .classed("hidden",true) 
+                    }else{
+                        this.innerHTML = "Start"
+                       d3.selectAll(".answer")
+                       .classed("hidden",false) 
+                    }
+                })
+
+        })
+    </script>
+</body>
+</html>
